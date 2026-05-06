@@ -25,18 +25,31 @@
   --blue:     #38bdf8;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
-  background:repeating-linear-gradient(to bottom,transparent 0,transparent 2px,rgba(0,0,0,0.055) 2px,rgba(0,0,0,0.055) 4px)}
+html,body{
+  font-family:'Kanit',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  height:100%;
+  width:100%;
+  overflow:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background:repeating-linear-gradient(to bottom,transparent 0,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px)
+}
 
 /* ════════════════════════════════
    START / MODE SELECT
 ════════════════════════════════ */
-#start-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+#start-screen{
+  position:fixed;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  overflow-y:auto;padding:2rem;
+}
 .start-card{
-  max-width:660px;width:100%;background:var(--panel);
+  max-width:800px;width:100%;background:var(--panel);
   border:1px solid var(--border);border-top:3px solid var(--red);
-  border-radius:4px;padding:2.5rem 2.5rem 2.25rem;
+  border-radius:6px;padding:2.8rem 3rem 2.5rem;
   text-align:center;position:relative;overflow:hidden;
 }
 .start-card::before{
@@ -46,54 +59,63 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 }
 @keyframes scanh{0%,100%{transform:scaleX(0);opacity:0}50%{transform:scaleX(1);opacity:1}}
 
-.logo{font-size:2.8rem;margin-bottom:.4rem}
-.start-card h1{font-size:2rem;font-weight:900;color:var(--red2);letter-spacing:.05em;text-shadow:0 0 22px var(--red-glow);margin-bottom:.25rem}
-.start-subtitle{font-size:.78rem;font-weight:300;color:var(--muted2);margin-bottom:1.6rem;line-height:1.65}
+.logo{font-size:3.2rem;margin-bottom:.5rem}
+.start-card h1{
+  font-size:2.6rem;font-weight:900;color:var(--red2);
+  letter-spacing:.05em;text-shadow:0 0 28px var(--red-glow);
+  margin-bottom:.35rem;
+}
+.start-subtitle{
+  font-size:.95rem;font-weight:300;color:var(--muted2);
+  margin-bottom:2rem;line-height:1.7;
+}
 .start-subtitle strong{color:var(--text);font-weight:600}
 
 /* 8 Dimensions mini grid */
-.dim-legend{display:grid;grid-template-columns:repeat(4,1fr);gap:.45rem;margin-bottom:1.6rem}
-.dl-item{background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:.55rem .35rem;text-align:center}
-.dl-icon{font-size:1.2rem;margin-bottom:.18rem}
-.dl-name{font-size:.6rem;font-weight:700;color:var(--red2);line-height:1.2}
-.dl-th{font-size:.55rem;font-weight:300;color:var(--muted2)}
+.dim-legend{display:grid;grid-template-columns:repeat(8,1fr);gap:.55rem;margin-bottom:2rem}
+.dl-item{
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:5px;padding:.65rem .3rem;text-align:center;
+}
+.dl-icon{font-size:1.35rem;margin-bottom:.22rem}
+.dl-name{font-size:.72rem;font-weight:700;color:var(--red2);line-height:1.25}
+.dl-th{font-size:.66rem;font-weight:300;color:var(--muted2);margin-top:.1rem}
 
 /* Mode selector */
-.mode-label{font-size:.65rem;font-weight:600;color:var(--muted2);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.65rem}
-.mode-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem;margin-bottom:1.6rem}
+.mode-label{
+  font-size:.78rem;font-weight:600;color:var(--muted2);
+  letter-spacing:.15em;text-transform:uppercase;margin-bottom:.85rem;
+}
+.mode-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:2rem}
 .mode-card{
-  background:var(--bg3);border:2px solid var(--border2);border-radius:6px;
-  padding:1.1rem .7rem 1rem;cursor:pointer;
+  background:var(--bg3);border:2px solid var(--border2);border-radius:8px;
+  padding:1.5rem 1rem 1.3rem;cursor:pointer;
   transition:border-color .18s,background .18s,transform .15s;
   position:relative;overflow:hidden;
 }
-.mode-card::after{
-  content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;
-}
-.mode-card:hover{transform:translateY(-2px)}
+.mode-card:hover{transform:translateY(-3px)}
 .mode-card.easy:hover{border-color:var(--green);background:rgba(34,197,94,.06)}
 .mode-card.med:hover{border-color:var(--amber);background:rgba(245,158,11,.06)}
 .mode-card.hard:hover{border-color:var(--red2);background:rgba(220,31,31,.08)}
-
 .mode-card.selected-easy{border-color:var(--green);background:rgba(34,197,94,.1)}
 .mode-card.selected-med{border-color:var(--amber);background:rgba(245,158,11,.09)}
 .mode-card.selected-hard{border-color:var(--red2);background:rgba(220,31,31,.12)}
 
 .mode-badge{
-  font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
-  border-radius:3px;padding:.15rem .45rem;display:inline-block;margin-bottom:.5rem;
+  font-size:.75rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  border-radius:3px;padding:.18rem .55rem;display:inline-block;margin-bottom:.6rem;
 }
 .badge-easy{background:rgba(34,197,94,.18);color:var(--green);border:1px solid rgba(34,197,94,.3)}
 .badge-med{background:rgba(245,158,11,.18);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
 .badge-hard{background:rgba(220,31,31,.18);color:var(--red2);border:1px solid rgba(220,31,31,.3)}
 
-.mode-icon{font-size:1.8rem;margin-bottom:.4rem}
-.mode-name{font-size:.95rem;font-weight:800;margin-bottom:.5rem}
+.mode-icon{font-size:2.2rem;margin-bottom:.5rem}
+.mode-name{font-size:1.15rem;font-weight:800;margin-bottom:.65rem}
 .mode-name-easy{color:var(--green)}
 .mode-name-med{color:var(--amber)}
 .mode-name-hard{color:var(--red2)}
 
-.mode-specs{list-style:none;text-align:left;font-size:.66rem;font-weight:300;color:var(--muted2);line-height:1.9}
+.mode-specs{list-style:none;text-align:left;font-size:.8rem;font-weight:300;color:var(--muted2);line-height:2.1}
 .mode-specs li::before{content:'▸ ';opacity:.5}
 .mode-specs .spec-hi{font-weight:600}
 .spec-hi-easy{color:var(--green)}
@@ -101,7 +123,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 .spec-hi-hard{color:var(--red2)}
 
 .checkmark{
-  position:absolute;top:.5rem;right:.6rem;font-size:1rem;
+  position:absolute;top:.65rem;right:.8rem;font-size:1.15rem;
   opacity:0;transition:opacity .2s;
 }
 .mode-card.selected-easy .checkmark,
@@ -110,67 +132,119 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
 
 .btn-start{
   width:100%;background:var(--red);border:none;color:#fff;
-  font-family:'Kanit',sans-serif;font-size:1.05rem;font-weight:700;
+  font-family:'Kanit',sans-serif;font-size:1.2rem;font-weight:700;
   letter-spacing:.12em;text-transform:uppercase;
-  padding:.9rem;cursor:pointer;border-radius:3px;
+  padding:1.05rem;cursor:pointer;border-radius:4px;
   transition:background .2s,box-shadow .2s,opacity .2s;
 }
-.btn-start:hover{background:var(--red2);box-shadow:0 0 22px var(--red-glow)}
+.btn-start:hover{background:var(--red2);box-shadow:0 0 28px var(--red-glow)}
 .btn-start:disabled{opacity:.35;cursor:not-allowed}
 
 /* ════════════════════════════════
-   GAME SCREEN
+   GAME SCREEN — Full Viewport Layout
 ════════════════════════════════ */
-#game-screen{display:none;min-height:100vh;flex-direction:column;align-items:center;padding:1rem}
+#game-screen{
+  display:none;
+  position:fixed;inset:0;
+  flex-direction:column;
+  overflow:hidden;
+}
 
 /* HUD bar */
-.hud{width:100%;max-width:1200px;display:flex;gap:.7rem;margin-bottom:.75rem;flex-wrap:wrap;align-items:stretch}
-.hud-box{background:var(--panel);border:1px solid var(--border);border-radius:3px;padding:.5rem 1.1rem;display:flex;align-items:center;gap:.65rem}
-.hud-icon{font-size:1.05rem}
-.hud-lbl{font-size:.57rem;font-weight:300;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em}
-.hud-val{font-size:1.35rem;font-weight:800;line-height:1}
+.hud{
+  flex-shrink:0;
+  display:flex;gap:.75rem;
+  padding:.6rem 1.2rem;
+  background:var(--bg2);
+  border-bottom:1px solid var(--border);
+  align-items:stretch;
+}
+.hud-box{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:4px;padding:.45rem 1.2rem;
+  display:flex;align-items:center;gap:.75rem;
+}
+.hud-icon{font-size:1.15rem}
+.hud-lbl{font-size:.68rem;font-weight:300;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em}
+.hud-val{font-size:1.55rem;font-weight:800;line-height:1}
 #timer-val{color:var(--amber)}
 #score-val{color:var(--red2)}
-#mode-badge-hud{font-size:.65rem;font-weight:700;padding:.25rem .55rem;border-radius:3px;letter-spacing:.1em}
+#mode-badge-hud{font-size:.78rem;font-weight:700;padding:.3rem .65rem;border-radius:3px;letter-spacing:.1em}
 
 .timer-warn{color:var(--red2)!important;animation:blink .65s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.18}}
 
-.prog-hud{flex:1;min-width:160px;background:var(--panel);border:1px solid var(--border);border-radius:3px;padding:.5rem 1.1rem;display:flex;flex-direction:column;justify-content:center;gap:.28rem}
+.prog-hud{
+  flex:1;min-width:200px;
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:4px;padding:.45rem 1.2rem;
+  display:flex;flex-direction:column;justify-content:center;gap:.32rem;
+}
 .ph-row{display:flex;justify-content:space-between;align-items:center}
-.ph-lbl{font-size:.57rem;font-weight:300;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em}
-.ph-pct{font-size:.72rem;font-weight:700;color:var(--red2)}
-.prog-track{background:#1a1a1a;height:5px;border-radius:3px;overflow:hidden}
-.prog-fill{height:100%;background:var(--red);border-radius:3px;width:0%;transition:width .4s ease;box-shadow:0 0 7px var(--red-glow)}
+.ph-lbl{font-size:.68rem;font-weight:300;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em}
+.ph-pct{font-size:.85rem;font-weight:700;color:var(--red2)}
+.prog-track{background:#1a1a1a;height:6px;border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:var(--red);border-radius:3px;width:0%;transition:width .4s ease;box-shadow:0 0 8px var(--red-glow)}
 
-/* Console */
-.console{width:100%;max-width:1200px;background:var(--panel);border:1px solid var(--border);border-radius:3px;overflow:hidden}
-.con-hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:.5rem 1rem;display:flex;justify-content:space-between;align-items:center}
-.dot-row{display:flex;gap:.32rem}
-.dot{width:9px;height:9px;border-radius:50%}
+/* Console — fills remaining space */
+.console{
+  flex:1;
+  display:flex;flex-direction:column;
+  background:var(--panel);
+  border-top:1px solid var(--border);
+  overflow:hidden;
+  margin:.75rem 1.2rem 0;
+  border-radius:4px 4px 0 0;
+  border:1px solid var(--border);
+  border-bottom:none;
+}
+.con-hdr{
+  flex-shrink:0;
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:.55rem 1.1rem;display:flex;justify-content:space-between;align-items:center;
+}
+.dot-row{display:flex;gap:.35rem}
+.dot{width:10px;height:10px;border-radius:50%}
 .dot-r{background:var(--red);animation:pingr 2s infinite}
 @keyframes pingr{0%,100%{opacity:1}50%{opacity:.22}}
 .dot-y{background:var(--amber)}.dot-g{background:var(--green)}
-.con-title{font-size:.65rem;font-weight:500;letter-spacing:.17em;color:var(--muted2);text-transform:uppercase}
-.con-right{font-size:.6rem;color:var(--muted2);letter-spacing:.08em;font-weight:400}
+.con-title{font-size:.78rem;font-weight:500;letter-spacing:.17em;color:var(--muted2);text-transform:uppercase}
+.con-right{font-size:.72rem;color:var(--muted2);letter-spacing:.08em;font-weight:400}
 
-/* Table */
-.tbl-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;min-width:1020px;font-size:.8rem;font-weight:400}
-thead th{background:rgba(0,0,0,.55);color:var(--muted2);font-weight:500;font-size:.61rem;text-transform:uppercase;letter-spacing:.1em;padding:.68rem .9rem;border-bottom:1px solid var(--border);text-align:left}
-tbody tr{border-bottom:1px solid #161616;transition:background .1s}
-tbody tr:hover{background:rgba(220,31,31,.025)}
-tbody td{padding:.57rem .9rem;color:#c4c4c4;cursor:pointer;transition:background .12s,color .12s;position:relative;user-select:none}
-td.batch-id{color:var(--muted);font-size:.71rem;cursor:default;font-weight:400}
-td.clickable:hover{background:rgba(220,31,31,.07);color:#fff}
-
-/* EASY mode: error cells pulse subtle amber glow */
-body.easy-mode td.error-hint{
-  animation:hint-pulse 2.5s ease-in-out infinite;
+/* Table — scrollable inside console */
+.tbl-wrap{flex:1;overflow:auto}
+table{
+  width:100%;border-collapse:collapse;
+  font-size:.92rem;font-weight:400;
 }
+thead th{
+  position:sticky;top:0;z-index:10;
+  background:#0a0a0a;color:var(--muted2);
+  font-weight:600;font-size:.75rem;
+  text-transform:uppercase;letter-spacing:.1em;
+  padding:.75rem 1rem;
+  border-bottom:1px solid var(--border);text-align:left;
+  white-space:nowrap;
+}
+tbody tr{border-bottom:1px solid #161616;transition:background .1s}
+tbody tr:hover{background:rgba(220,31,31,.03)}
+tbody td{
+  padding:.7rem 1rem;color:#c4c4c4;
+  cursor:pointer;transition:background .12s,color .12s;
+  position:relative;user-select:none;
+  font-size:.88rem;white-space:nowrap;
+}
+td.batch-id{
+  color:var(--muted);font-size:.8rem;
+  cursor:default;font-weight:500;
+  border-right:1px solid #1e1e1e;
+}
+td.clickable:hover{background:rgba(220,31,31,.08);color:#fff}
+
+body.easy-mode td.error-hint{animation:hint-pulse 2.5s ease-in-out infinite}
 @keyframes hint-pulse{
   0%,100%{box-shadow:inset 0 0 0 0 transparent}
-  50%{box-shadow:inset 0 0 0 1px rgba(245,158,11,.35)}
+  50%{box-shadow:inset 0 0 0 1px rgba(245,158,11,.4)}
 }
 
 td.found{color:var(--green)!important;text-decoration:line-through;background:rgba(34,197,94,.07)!important;cursor:default;pointer-events:none}
@@ -181,101 +255,190 @@ td.correct-flash{animation:ccell .4s ease}
 @keyframes ccell{0%,100%{background:transparent}40%{background:rgba(34,197,94,.18)}}
 
 /* penalty dots */
-.pen-dots{position:absolute;top:4px;right:5px;display:flex;gap:2px}
-.pdot{width:4px;height:4px;border-radius:50%;background:#222;transition:background .15s}
+.pen-dots{position:absolute;top:5px;right:6px;display:flex;gap:3px}
+.pdot{width:5px;height:5px;border-radius:50%;background:#222;transition:background .15s}
 .pdot.used{background:var(--red2)}
 
 /* legend */
-.legend-strip{margin-top:.5rem;display:flex;gap:1.2rem;flex-wrap:wrap;font-size:.63rem;color:var(--muted2);font-weight:300}
+.legend-strip{
+  flex-shrink:0;
+  display:flex;gap:1.5rem;flex-wrap:wrap;
+  font-size:.75rem;color:var(--muted2);font-weight:300;
+  padding:.55rem 1.2rem .65rem;
+  background:var(--bg2);
+  border-top:1px solid var(--border2);
+}
 
 /* ════════════════════════════════
    DIM MODAL
 ════════════════════════════════ */
-#dim-modal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;padding:1rem;z-index:200}
-.dim-card{background:var(--panel);border:1px solid var(--border);border-top:3px solid var(--red);border-radius:4px;padding:1.7rem 1.7rem 1.45rem;max-width:580px;width:100%}
-.dim-card h2{font-size:.8rem;font-weight:700;color:var(--red2);letter-spacing:.14em;text-transform:uppercase;margin-bottom:.18rem}
-.dim-card .dim-sub{font-size:.72rem;font-weight:300;color:var(--muted2);margin-bottom:.8rem;line-height:1.5}
+#dim-modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.92);
+  display:none;align-items:center;justify-content:center;
+  padding:1.5rem;z-index:200;
+}
+.dim-card{
+  background:var(--panel);border:1px solid var(--border);
+  border-top:3px solid var(--red);border-radius:6px;
+  padding:2rem 2.2rem 1.75rem;max-width:640px;width:100%;
+}
+.dim-card h2{
+  font-size:.95rem;font-weight:700;color:var(--red2);
+  letter-spacing:.14em;text-transform:uppercase;margin-bottom:.22rem;
+}
+.dim-card .dim-sub{
+  font-size:.85rem;font-weight:300;color:var(--muted2);
+  margin-bottom:1rem;line-height:1.6;
+}
 
-.field-prev{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:.42rem .78rem;margin-bottom:.75rem}
-.fp-col{font-size:.55rem;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.1rem}
-.fp-val{font-size:.9rem;font-weight:700;color:var(--text)}
+.field-prev{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:4px;padding:.55rem .95rem;margin-bottom:.9rem;
+}
+.fp-col{font-size:.65rem;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.12rem}
+.fp-val{font-size:1.05rem;font-weight:700;color:var(--text)}
 
-.att-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.38rem}
-.att-lbl{font-size:.6rem;color:var(--muted2);flex:1}
-.att-dots{display:flex;gap:4px}
-.adot{width:8px;height:8px;border-radius:50%;background:#222;border:1px solid #333;transition:background .2s}
+.att-row{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem}
+.att-lbl{font-size:.75rem;color:var(--muted2);flex:1}
+.att-dots{display:flex;gap:5px}
+.adot{width:9px;height:9px;border-radius:50%;background:#222;border:1px solid #333;transition:background .2s}
 .adot.used{background:var(--red2);border-color:var(--red2)}
 
-.wrong-msg{font-size:.69rem;color:var(--red2);min-height:.95rem;margin-bottom:.52rem;font-weight:400;text-align:center}
+.wrong-msg{
+  font-size:.82rem;color:var(--red2);
+  min-height:1.1rem;margin-bottom:.65rem;
+  font-weight:400;text-align:center;
+}
 
 /* 3-col dim buttons */
-.dim-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.42rem;margin-bottom:.48rem}
+.dim-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:.55rem}
 .none-wrap{grid-column:1/-1}
 
 .dim-btn{
-  background:var(--bg3);border:1px solid #1e1e1e;border-radius:4px;
-  padding:.52rem .38rem;display:flex;flex-direction:column;align-items:center;gap:.18rem;
-  cursor:pointer;font-family:'Kanit',sans-serif;font-size:.67rem;font-weight:500;color:var(--muted2);
-  text-align:center;line-height:1.3;transition:all .12s;min-height:58px;justify-content:center;
+  background:var(--bg3);border:1px solid #1e1e1e;border-radius:5px;
+  padding:.65rem .45rem;display:flex;flex-direction:column;align-items:center;gap:.22rem;
+  cursor:pointer;font-family:'Kanit',sans-serif;
+  font-size:.8rem;font-weight:500;color:var(--muted2);
+  text-align:center;line-height:1.35;transition:all .12s;
+  min-height:68px;justify-content:center;
 }
-.dim-btn .dic{font-size:1.05rem}
+.dim-btn .dic{font-size:1.2rem}
 .dim-btn:hover{border-color:var(--red);color:var(--text);background:var(--red-dim)}
 .dim-btn.cf{border-color:var(--green)!important;color:var(--green)!important;background:rgba(34,197,94,.1)!important}
 .dim-btn.wf{border-color:var(--red2)!important;color:var(--red2)!important;background:var(--red-dim)!important;animation:shk .3s ease}
-@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 
 .none-btn{
-  width:100%;background:var(--bg3);border:1px solid #1e1e1e;border-radius:4px;
-  padding:.47rem .8rem;display:flex;align-items:center;justify-content:center;gap:.45rem;
-  cursor:pointer;font-family:'Kanit',sans-serif;font-size:.7rem;font-weight:500;color:var(--muted2);
+  width:100%;background:var(--bg3);border:1px solid #1e1e1e;border-radius:5px;
+  padding:.58rem 1rem;display:flex;align-items:center;justify-content:center;gap:.55rem;
+  cursor:pointer;font-family:'Kanit',sans-serif;
+  font-size:.85rem;font-weight:500;color:var(--muted2);
   transition:all .12s;
 }
 .none-btn:hover{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.07)}
 .none-btn.cf{border-color:var(--green)!important;color:var(--green)!important;background:rgba(34,197,94,.1)!important}
 .none-btn.wf{border-color:var(--red2)!important;color:var(--red2)!important;background:var(--red-dim)!important}
 
-.btn-cancel{width:100%;background:none;border:1px solid #1e1e1e;color:var(--muted2);font-family:'Kanit',sans-serif;font-size:.72rem;font-weight:400;padding:.46rem;cursor:pointer;border-radius:3px;transition:border-color .15s,color .15s;margin-top:.38rem}
+.btn-cancel{
+  width:100%;background:none;border:1px solid #1e1e1e;
+  color:var(--muted2);font-family:'Kanit',sans-serif;
+  font-size:.85rem;font-weight:400;
+  padding:.55rem;cursor:pointer;border-radius:4px;
+  transition:border-color .15s,color .15s;margin-top:.45rem;
+}
 .btn-cancel:hover{border-color:#444;color:var(--text)}
-
-/* Easy mode: dim modal hides "NONE" option — error cells only shown, so cancel available */
-/* (handled in JS) */
 
 /* ════════════════════════════════
    RESULT MODAL
 ════════════════════════════════ */
-#result-modal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;padding:1rem;z-index:300}
-.result-card{background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:1.8rem 1.9rem 1.65rem;max-width:500px;width:100%}
-.res-badge{font-size:.59rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--red2);border:1px solid var(--red);border-radius:2px;padding:.14rem .48rem;display:inline-block;margin-bottom:.52rem}
-.res-title{font-size:1.38rem;font-weight:800;color:#fff;margin-bottom:.62rem}
-.res-desc{background:var(--bg3);border-left:3px solid var(--red);padding:.78rem .95rem;border-radius:0 3px 3px 0;font-size:.81rem;font-weight:300;color:#bbb;line-height:1.7;margin-bottom:.95rem}
-.btn-ok{width:100%;background:var(--red);border:none;color:#fff;font-family:'Kanit',sans-serif;font-size:.87rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.7rem;cursor:pointer;border-radius:3px;transition:background .2s,box-shadow .2s}
-.btn-ok:hover{background:var(--red2);box-shadow:0 0 14px var(--red-glow)}
+#result-modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.92);
+  display:none;align-items:center;justify-content:center;
+  padding:1.5rem;z-index:300;
+}
+.result-card{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:6px;padding:2.1rem 2.2rem 1.9rem;max-width:560px;width:100%;
+}
+.res-badge{
+  font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--red2);border:1px solid var(--red);border-radius:3px;
+  padding:.16rem .55rem;display:inline-block;margin-bottom:.65rem;
+}
+.res-title{font-size:1.55rem;font-weight:800;color:#fff;margin-bottom:.75rem}
+.res-desc{
+  background:var(--bg3);border-left:3px solid var(--red);
+  padding:.9rem 1.1rem;border-radius:0 4px 4px 0;
+  font-size:.9rem;font-weight:300;color:#bbb;
+  line-height:1.8;margin-bottom:1.1rem;
+}
+.btn-ok{
+  width:100%;background:var(--red);border:none;color:#fff;
+  font-family:'Kanit',sans-serif;font-size:1rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;
+  padding:.8rem;cursor:pointer;border-radius:4px;
+  transition:background .2s,box-shadow .2s;
+}
+.btn-ok:hover{background:var(--red2);box-shadow:0 0 18px var(--red-glow)}
 
 /* ════════════════════════════════
    END MODAL
 ════════════════════════════════ */
-#end-modal{position:fixed;inset:0;background:rgba(0,0,0,.97);display:none;align-items:center;justify-content:center;padding:1.5rem;z-index:400;text-align:center;overflow-y:auto}
-.end-card{max-width:660px;width:100%;padding:.75rem 0 2rem}
-.end-ico{font-size:3.8rem;margin-bottom:.55rem}
-.end-status{font-size:2.3rem;font-weight:900;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem}
-.win{color:var(--green);text-shadow:0 0 26px rgba(34,197,94,.35)}
-.lose{color:var(--red2);text-shadow:0 0 26px var(--red-glow)}
-.end-meta{display:flex;justify-content:center;gap:1rem;margin-bottom:1.1rem;flex-wrap:wrap}
-.end-meta-chip{background:var(--bg3);border:1px solid var(--border2);border-radius:3px;padding:.3rem .75rem;font-size:.72rem;font-weight:500;color:var(--muted2)}
+#end-modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.97);
+  display:none;align-items:center;justify-content:center;
+  padding:2rem;z-index:400;text-align:center;overflow-y:auto;
+}
+.end-card{max-width:720px;width:100%;padding:.75rem 0 2.5rem}
+.end-ico{font-size:4.2rem;margin-bottom:.65rem}
+.end-status{
+  font-size:2.6rem;font-weight:900;text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:.5rem;
+}
+.win{color:var(--green);text-shadow:0 0 30px rgba(34,197,94,.38)}
+.lose{color:var(--red2);text-shadow:0 0 30px var(--red-glow)}
+.end-meta{display:flex;justify-content:center;gap:1.1rem;margin-bottom:1.4rem;flex-wrap:wrap}
+.end-meta-chip{
+  background:var(--bg3);border:1px solid var(--border2);
+  border-radius:4px;padding:.38rem .9rem;
+  font-size:.85rem;font-weight:500;color:var(--muted2);
+}
 .end-meta-chip span{color:var(--text);font-weight:700}
 
-.ans-panel{background:var(--panel);border:1px solid var(--border);border-radius:4px;margin-bottom:1.35rem;overflow:hidden;text-align:left}
-.ans-panel h4{font-size:.59rem;font-weight:700;color:var(--muted2);letter-spacing:.15em;text-transform:uppercase;padding:.58rem 1rem;background:var(--bg3);border-bottom:1px solid var(--border2)}
-.ans-item{display:flex;align-items:flex-start;gap:.58rem;padding:.58rem 1rem;border-bottom:1px solid var(--border2);font-size:.8rem}
+.ans-panel{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:6px;margin-bottom:1.5rem;overflow:hidden;text-align:left;
+}
+.ans-panel h4{
+  font-size:.72rem;font-weight:700;color:var(--muted2);
+  letter-spacing:.15em;text-transform:uppercase;
+  padding:.68rem 1.2rem;background:var(--bg3);border-bottom:1px solid var(--border2);
+}
+.ans-item{
+  display:flex;align-items:flex-start;gap:.7rem;
+  padding:.7rem 1.2rem;border-bottom:1px solid var(--border2);
+  font-size:.9rem;
+}
 .ans-item:last-child{border-bottom:none}
-.ans-ico{flex-shrink:0;font-size:.9rem;margin-top:.1rem}
-.ans-dim{font-size:.67rem;font-weight:600;color:var(--red2);margin-bottom:.1rem}
-.ans-desc{font-size:.75rem;font-weight:300;color:var(--muted2);line-height:1.55}
+.ans-ico{flex-shrink:0;font-size:1rem;margin-top:.12rem}
+.ans-dim{font-size:.78rem;font-weight:600;color:var(--red2);margin-bottom:.12rem}
+.ans-desc{font-size:.85rem;font-weight:300;color:var(--muted2);line-height:1.6}
 
-.end-btns{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
-.btn-restart{background:var(--red);border:none;color:#fff;font-family:'Kanit',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:.8rem 2.5rem;cursor:pointer;border-radius:3px;transition:background .2s,box-shadow .2s}
-.btn-restart:hover{background:var(--red2);box-shadow:0 0 20px var(--red-glow)}
-.btn-change{background:none;border:1px solid var(--border);color:var(--muted2);font-family:'Kanit',sans-serif;font-size:.88rem;font-weight:500;padding:.8rem 2rem;cursor:pointer;border-radius:3px;transition:border-color .2s,color .2s}
+.end-btns{display:flex;gap:.9rem;justify-content:center;flex-wrap:wrap}
+.btn-restart{
+  background:var(--red);border:none;color:#fff;
+  font-family:'Kanit',sans-serif;font-size:1.05rem;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  padding:.9rem 3rem;cursor:pointer;border-radius:4px;
+  transition:background .2s,box-shadow .2s;
+}
+.btn-restart:hover{background:var(--red2);box-shadow:0 0 22px var(--red-glow)}
+.btn-change{
+  background:none;border:1px solid var(--border);color:var(--muted2);
+  font-family:'Kanit',sans-serif;font-size:.98rem;font-weight:500;
+  padding:.9rem 2.2rem;cursor:pointer;border-radius:4px;
+  transition:border-color .2s,color .2s;
+}
 .btn-change:hover{border-color:var(--muted2);color:var(--text)}
 </style>
 </head>
@@ -288,7 +451,7 @@ td.correct-flash{animation:ccell .4s ease}
   <div class="start-card">
     <div class="logo">🔍</div>
     <h1>DATA DETECTIVE</h1>
-    <p class="start-subtitle">ตรวจสอบข้อมูลคลังสินค้า — ค้นหาความผิดปกติทั้ง <strong>8 จุด</strong> ใน <strong>8 Dimensions</strong></p>
+    <p class="start-subtitle">ตรวจสอบข้อมูล <strong>Shipment & Delivery</strong> สินค้าเหล็ก — ค้นหาความผิดปกติทั้ง <strong>8 จุด</strong> ใน <strong>8 Data Quality Dimensions</strong></p>
 
     <!-- 8 Dimensions -->
     <div class="dim-legend">
@@ -386,23 +549,26 @@ td.correct-flash{animation:ccell .4s ease}
       <div class="dot-row">
         <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
       </div>
-      <span class="con-title">📦 Warehouse_Data_Console_v4</span>
+      <span class="con-title">🏭 TMT_Shipment_Console — Delivery Monitor</span>
       <span class="con-right" id="con-right-text">ANOMALY SCAN: ON</span>
     </div>
     <div class="tbl-wrap">
       <table>
         <thead>
           <tr>
-            <th>Batch ID</th>
-            <th>SKU Code</th>
-            <th>Item Name</th>
-            <th>Qty</th>
-            <th>Category</th>
-            <th>Received Date</th>
-            <th>Supplier ID</th>
-            <th>Warehouse Zone</th>
-            <th>UOM</th>
-            <th>Access Level</th>
+            <th>Shipment</th>
+            <th>Delivery</th>
+            <th>Item</th>
+            <th>External ID</th>
+            <th>Material Code</th>
+            <th>Description</th>
+            <th>Batch</th>
+            <th>Del. Qty</th>
+            <th>Gross Wt.</th>
+            <th>Shipment Type</th>
+            <th>Group Product</th>
+            <th>Product Type</th>
+            <th>SLoc</th>
           </tr>
         </thead>
         <tbody id="tbl-body"></tbody>
@@ -455,7 +621,7 @@ td.correct-flash{animation:ccell .4s ease}
     <div class="end-status" id="end-status">—</div>
     <div class="end-meta" id="end-meta"></div>
     <div class="ans-panel">
-      <h4>📂 เฉลยทั้งหมด — 8 Data Quality Dimensions</h4>
+      <h4>📂 เฉลยทั้งหมด — 8 Data Quality Dimensions (ข้อมูล Shipment เหล็ก)</h4>
       <div id="ans-list"></div>
     </div>
     <div class="end-btns">
@@ -480,29 +646,204 @@ const DIMENSIONS = [
   { key:"Accessibility", icon:"🔓", label:"Accessibility\nเข้าถึงได้" },
 ];
 
+// คอลัมน์: Shipment | Delivery | Item | External ID | Material Code | Description | Batch | Del.Qty | Gross Wt. | Shipment Type | Group Product | Product Type | SLoc
+// ERRORS — 8 จุดผิดปกติในข้อมูลจัดส่งเหล็ก TMT
 const ERRORS = [
-  { id:"0", dim:"Accuracy",      dimTH:"Accuracy — ความถูกต้อง",            icon:"🎯", desc:"จำนวน 9,999,999 ใน #B003 เป็น Outlier ผิดปกติ ข้อมูลต้องตรงกับโลกแห่งความเป็นจริง คาดว่าเกิดจากการพิมพ์ผิดหรือ Error ในระบบนำเข้า" },
-  { id:"1", dim:"Completeness",  dimTH:"Completeness — ความครบถ้วน",         icon:"📋", desc:"หน่วยนับ (UOM) ของ #B002 เป็นค่าว่าง ข้อมูลต้องไม่แหว่ง ทำให้ระบบประมวลผลสต็อกและออกใบเบิกไม่ได้" },
-  { id:"2", dim:"Consistency",   dimTH:"Consistency — ความสอดคล้อง",         icon:"🔄", desc:"วันที่ '04/Nov/2023' ใน #B006 ไม่สอดคล้องกับมาตรฐาน YYYY-MM-DD ของตาราง ข้อมูลในแต่ละระบบต้องพูดเรื่องเดียวกัน" },
-  { id:"3", dim:"Uniqueness",    dimTH:"Uniqueness — ความเป็นหนึ่งเดียว",    icon:"🔁", desc:"พบรหัส SKU-7788-X ซ้ำกันใน #B001 และ #B004 ต้องไม่มีข้อมูลซ้ำซ้อน รหัส SKU ควรเป็น Unique Key ของสินค้า" },
-  { id:"4", dim:"Timeliness",    dimTH:"Timeliness — ความทันสมัย",            icon:"⏱",  desc:"วันที่รับสินค้า '1999-01-01' ใน #B008 เก่าเกินจริง คาดว่าเป็น Default Value ที่ไม่ได้แก้ไข ข้อมูลต้องพร้อมใช้ในเวลาที่ต้องการ" },
-  { id:"5", dim:"Validity",      dimTH:"Validity — ความสมเหตุสมผล",          icon:"✔️", desc:"Supplier ID 'S_03_XXX_99' ใน #B005 ไม่ตรงรูปแบบ SUPP-XX ตามมาตรฐาน ข้อมูลต้องอยู่ในรูปแบบหรือช่วงที่กำหนด" },
-  { id:"6", dim:"Integrity",     dimTH:"Integrity — ความสัมพันธ์ที่ถูกต้อง",icon:"🔗", desc:"Warehouse Zone 'ZONE-Z9' ใน #B007 ไม่มีอยู่ใน Master Zone ข้อมูลในตารางหนึ่งต้องมีความสัมพันธ์ที่ถูกต้องกับอีกตารางหนึ่ง (Foreign Key)" },
-  { id:"7", dim:"Accessibility", dimTH:"Accessibility — ความง่ายในการเข้าถึง",icon:"🔓", desc:"Access Level 'CLASSIFIED-9' ใน #B009 ไม่มีในระบบ ทำให้ไม่มีผู้ใช้คนใดเข้าถึงข้อมูล Batch นี้ได้ — ข้อมูลที่ดีต้องพร้อมให้ผู้มีสิทธิ์ใช้งาน" },
+  {
+    id:"0", dim:"Accuracy",
+    dimTH:"Accuracy — ความถูกต้อง", icon:"🎯",
+    desc:"Gross Weight ของ Shipment 2612906165 แถวท่อเหลี่ยม 100x50x3.2 มม. แสดง 99,999 กก. ซึ่งเป็นไปไม่ได้สำหรับ Delivery Qty เพียง 8 เส้น — ตัวเลขนี้ผิดจากความเป็นจริงอย่างชัดเจน"
+  },
+  {
+    id:"1", dim:"Completeness",
+    dimTH:"Completeness — ความครบถ้วน", icon:"📋",
+    desc:"Batch Number ของแถว Flat Bar 4.00mm รหัส 2FB040-1000-019 เป็นค่าว่าง (SL ปกติต้องมี Batch ระบุ) ทำให้ไม่สามารถ Trace สินค้าย้อนกลับไปยัง Heat Number ของเหล็กได้"
+  },
+  {
+    id:"2", dim:"Consistency",
+    dimTH:"Consistency — ความสอดคล้อง", icon:"🔄",
+    desc:"Shipment Type ของรายการท่อกลม 75x25mm (External ID: R6-834109) บันทึกเป็น 'Trading-SYS' ขณะที่ Group Sale ระบุ 'ลูกค้ามารับเอง' — สองค่านี้ขัดแย้งกัน"
+  },
+  {
+    id:"3", dim:"Uniqueness",
+    dimTH:"Uniqueness — ความเป็นหนึ่งเดียว", icon:"🔁",
+    desc:"พบ Delivery Order 2301058097 ปรากฎสองครั้งในระบบ (Item 10 และ Item 20) ด้วย Material Code ต่างกัน บ่งชี้ว่ามีการบันทึก Delivery ซ้ำซ้อน หรือ DO เดิมถูก Copy มาผิด"
+  },
+  {
+    id:"4", dim:"Timeliness",
+    dimTH:"Timeliness — ความทันสมัย", icon:"⏱",
+    desc:"External ID ของ Shipment 2612906163 แถว WF SS400 บันทึกเป็น '1WF106-250-01776' ซึ่งเป็นรหัสชุดเก่าปี 2563 ที่ยกเลิกแล้ว — ข้อมูลไม่ได้รับการอัปเดตตามมาตรฐานรหัสปัจจุบัน"
+  },
+  {
+    id:"5", dim:"Validity",
+    dimTH:"Validity — ความสมเหตุสมผล", icon:"✔️",
+    desc:"Product Type ของรายการ C-Channel 125x50x20x2.3mm บันทึกเป็น 'ท่อดำ' ซึ่งไม่ถูกต้อง — C-Channel ต้องอยู่ใน Product Type 'ตัวซี' ตามมาตรฐานการจำแนกสินค้าของ TMT"
+  },
+  {
+    id:"6", dim:"Integrity",
+    dimTH:"Integrity — ความสัมพันธ์ที่ถูกต้อง", icon:"🔗",
+    desc:"Group Product 'Pipe-GI' ใน Shipment 2612906162 ถูกจับคู่กับ Group Sale 'ลูกค้ามารับเอง' แต่ SLoc ระบุ Fac.L ซึ่งเป็นคลังสำหรับสินค้า Trading เท่านั้น ความสัมพันธ์ระหว่างตารางขัดแย้งกัน"
+  },
+  {
+    id:"7", dim:"Accessibility",
+    dimTH:"Accessibility — ความง่ายในการเข้าถึง", icon:"🔓",
+    desc:"SLoc ของ Delivery 2301055269 แถว Pipe 75x25mm บันทึกเป็น 'Fac.XX' ซึ่งไม่มีอยู่ใน Master Data คลัง — ทำให้ระบบ WMS ไม่สามารถระบุตำแหน่งสินค้าและผู้รับผิดชอบได้"
+  },
 ];
 
-// cols: SKU Code | Item Name | Qty | Category | Received Date | Supplier ID | Warehouse Zone | UOM | Access Level
+// ROWS — 10 แถวข้อมูล Shipment เหล็ก TMT สไตล์จริง
+// format: [colName, value, errorId|null]
 const ROWS = [
-  { batch:"#B001", cells:[["SKU Code","SKU-7788-X","3"],["Item Name","Copper Wire 5m",null],["Qty","250",null],["Category","Hardware",null],["Received Date","2023-11-01",null],["Supplier ID","SUPP-01",null],["Warehouse Zone","ZONE-A1",null],["UOM","Rolls",null],["Access Level","STAFF",null]]},
-  { batch:"#B002", cells:[["SKU Code","SKU-1122-A",null],["Item Name","Induction Motor",null],["Qty","5",null],["Category","Electronics",null],["Received Date","2023-11-01",null],["Supplier ID","SUPP-04",null],["Warehouse Zone","ZONE-B2",null],["UOM","(ว่าง)","1"],["Access Level","MANAGER",null]]},
-  { batch:"#B003", cells:[["SKU Code","SKU-9944-Z",null],["Item Name","Steel Sheet 2x4",null],["Qty","9999999","0"],["Category","Metal",null],["Received Date","2023-11-02",null],["Supplier ID","SUPP-02",null],["Warehouse Zone","ZONE-C3",null],["UOM","Units",null],["Access Level","STAFF",null]]},
-  { batch:"#B004", cells:[["SKU Code","SKU-7788-X","3"],["Item Name","Copper Wire 5m",null],["Qty","100",null],["Category","Hardware",null],["Received Date","2023-11-02",null],["Supplier ID","SUPP-01",null],["Warehouse Zone","ZONE-A1",null],["UOM","Rolls",null],["Access Level","STAFF",null]]},
-  { batch:"#B005", cells:[["SKU Code","SKU-4455-B",null],["Item Name","Rubber Seal",null],["Qty","1000",null],["Category","Chemical",null],["Received Date","2023-11-03",null],["Supplier ID","S_03_XXX_99","5"],["Warehouse Zone","ZONE-D4",null],["UOM","Pack",null],["Access Level","STAFF",null]]},
-  { batch:"#B006", cells:[["SKU Code","SKU-8811-C",null],["Item Name","Aluminum Tube",null],["Qty","40",null],["Category","Metal",null],["Received Date","04/Nov/2023","2"],["Supplier ID","SUPP-02",null],["Warehouse Zone","ZONE-C3",null],["UOM","Units",null],["Access Level","MANAGER",null]]},
-  { batch:"#B007", cells:[["SKU Code","SKU-2233-D",null],["Item Name","Power Drill",null],["Qty","15",null],["Category","Tools",null],["Received Date","2023-11-04",null],["Supplier ID","SUPP-05",null],["Warehouse Zone","ZONE-Z9","6"],["UOM","Boxes",null],["Access Level","STAFF",null]]},
-  { batch:"#B008", cells:[["SKU Code","SKU-6677-E",null],["Item Name","Safety Goggles",null],["Qty","50",null],["Category","Safety",null],["Received Date","1999-01-01","4"],["Supplier ID","SUPP-06",null],["Warehouse Zone","ZONE-E5",null],["UOM","Units",null],["Access Level","STAFF",null]]},
-  { batch:"#B009", cells:[["SKU Code","SKU-3322-F",null],["Item Name","Work Boots",null],["Qty","30",null],["Category","Safety",null],["Received Date","2023-11-05",null],["Supplier ID","SUPP-06",null],["Warehouse Zone","ZONE-E5",null],["UOM","Pairs",null],["Access Level","CLASSIFIED-9","7"]]},
-  { batch:"#B010", cells:[["SKU Code","SKU-5544-G",null],["Item Name","Lifting Belt",null],["Qty","20",null],["Category","Safety",null],["Received Date","2023-11-06",null],["Supplier ID","SUPP-06",null],["Warehouse Zone","ZONE-E5",null],["UOM","Units",null],["Access Level","STAFF",null]]},
+  { batch:"SHP-01", cells:[
+    ["Shipment","2612906159",null],
+    ["Delivery","2301054310",null],
+    ["Item","10",null],
+    ["External ID","R6-834109",null],
+    ["Material Code","3SPTS0075-045-0537",null],
+    ["Description","ท่อเหลี่ยม 75×75×4.50×6000mm TIS/JIS",null],
+    ["Batch","045002",null],
+    ["Del. Qty","4",null],
+    ["Gross Wt.","214",null],
+    ["Shipment Type","ลูกค้ามารับเอง","2"],
+    ["Group Product","Pipe-B",null],
+    ["Product Type","Pipe",null],
+    ["SLoc","Fac.O",null]
+  ]},
+  { batch:"SHP-02", cells:[
+    ["Shipment","2612906160",null],
+    ["Delivery","2301057799",null],
+    ["Item","30",null],
+    ["External ID","R6-701138",null],
+    ["Material Code","2FB090-0750-032",null],
+    ["Description","เหล็กแบน 9.00mm×75mm×6000mm SS400",null],
+    ["Batch","SL",null],
+    ["Del. Qty","252",null],
+    ["Gross Wt.","7,815",null],
+    ["Shipment Type","ลูกค้ามารับเอง",null],
+    ["Group Product","FB-A",null],
+    ["Product Type","Flat Bars",null],
+    ["SLoc","Fac.K",null]
+  ]},
+  { batch:"SHP-03", cells:[
+    ["Shipment","2612906162",null],
+    ["Delivery","2301057798",null],
+    ["Item","10",null],
+    ["External ID","R6-701138",null],
+    ["Material Code","3CH11255023-0265",null],
+    ["Description","ตัวซีมีขอบ 125x50x20x2.30mm×6000mm มอก.",null],
+    ["Batch","023002",null],
+    ["Del. Qty","180",null],
+    ["Gross Wt.","4,465",null],
+    ["Shipment Type","ลูกค้ามารับเอง",null],
+    ["Group Product","CH-A",null],
+    ["Product Type","ท่อดำ","5"],
+    ["SLoc","Fac.O",null]
+  ]},
+  { batch:"SHP-04", cells:[
+    ["Shipment","2612906162",null],
+    ["Delivery","2301057810",null],
+    ["Item","10",null],
+    ["External ID","R6-701138",null],
+    ["Material Code","3RPGITS2-10050-032",null],
+    ["Description","แป๊บแบน 100x50x3.2×6000mm GI TIS/JIS290",null],
+    ["Batch","032021GI",null],
+    ["Del. Qty","320",null],
+    ["Gross Wt.","12,700",null],
+    ["Shipment Type","ลูกค้ามารับเอง",null],
+    ["Group Product","Pipe-GI",null],
+    ["Product Type","Pipe",null],
+    ["SLoc","Fac.L","6"]
+  ]},
+  { batch:"SHP-05", cells:[
+    ["Shipment","2612906162",null],
+    ["Delivery","2301057212",null],
+    ["Item","10",null],
+    ["External ID","R6-701138",null],
+    ["Material Code","3SPGI038-015-0100",null],
+    ["Description","เหล็กกล้า 38×38×1.60mm×6000mm (GI)",null],
+    ["Batch","016001GI",null],
+    ["Del. Qty","100",null],
+    ["Gross Wt.","955",null],
+    ["Shipment Type","ลูกค้ามารับเอง",null],
+    ["Group Product","Pipe-GI",null],
+    ["Product Type","ท่อเหลี่ยม GI",null],
+    ["SLoc","Fac.02",null]
+  ]},
+  { batch:"SHP-06", cells:[
+    ["Shipment","2612906163",null],
+    ["Delivery","2301058097",null],
+    ["Item","10",null],
+    ["External ID","1WF106-250-01776","4"],
+    ["Material Code","1WF106-250-01776",null],
+    ["Description","WF SS400 250x125x6.0×9.0mm×6.0M",null],
+    ["Batch","WFS5400",null],
+    ["Del. Qty","10",null],
+    ["Gross Wt.","1,776",null],
+    ["Shipment Type","Trading-SYS",null],
+    ["Group Product","Beam",null],
+    ["Product Type","WF",null],
+    ["SLoc","Fac.L",null]
+  ]},
+  { batch:"SHP-07", cells:[
+    ["Shipment","2612906163",null],
+    ["Delivery","2301058105",null],
+    ["Item","10",null],
+    ["External ID","R6-711276",null],
+    ["Material Code","3BPTS015032-0710",null],
+    ["Description","ท่อกลม 165.2 (6\") ×3.20×6000mm TIS/JIS",null],
+    ["Batch","032002",null],
+    ["Del. Qty","105",null],
+    ["Gross Wt.","7,379",null],
+    ["Shipment Type","ลูกค้ามารับเอง",null],
+    ["Group Product","Pipe-B",null],
+    ["Product Type","ท่อดำ",null],
+    ["SLoc","Fac.O",null]
+  ]},
+  { batch:"SHP-08", cells:[
+    ["Shipment","2612906163",null],
+    ["Delivery","2301058097",null],
+    ["Item","20",null],
+    ["External ID","R6-711276",null],
+    ["Material Code","3RPTS15010032-0666","3"],
+    ["Description","แป๊บแบน 150×100×3.20×6000mm TIS/JIS",null],
+    ["Batch","032002",null],
+    ["Del. Qty","2",null],
+    ["Gross Wt.","133",null],
+    ["Shipment Type","ลูกค้ามารับเอง",null],
+    ["Group Product","Pipe-C",null],
+    ["Product Type","แป๊บแบน",null],
+    ["SLoc","Fac.O",null]
+  ]},
+  { batch:"SHP-09", cells:[
+    ["Shipment","2612906164",null],
+    ["Delivery","2301055269",null],
+    ["Item","30",null],
+    ["External ID","R3-703440",null],
+    ["Material Code","2FB040-1000-019",null],
+    ["Description","เหล็กแบน 4.00mm×100mm×6000mm SS400",null],
+    ["Batch","","1"],
+    ["Del. Qty","166",null],
+    ["Gross Wt.","3,127",null],
+    ["Shipment Type","ลูกค้ามารับเอง",null],
+    ["Group Product","FB-A",null],
+    ["Product Type","Flat Bars",null],
+    ["SLoc","Fac.K",null]
+  ]},
+  { batch:"SHP-10", cells:[
+    ["Shipment","2612906165",null],
+    ["Delivery","2301058152",null],
+    ["Item","20",null],
+    ["External ID","R3-703440",null],
+    ["Material Code","3RPTS01005032-0397",null],
+    ["Description","แป๊บแบน 100×50×3.20×6000mm TIS/JIS",null],
+    ["Batch","032002",null],
+    ["Del. Qty","8",null],
+    ["Gross Wt.","99,999","0"],
+    ["Shipment Type","ลูกค้ามารับเอง",null],
+    ["Group Product","Pipe-A",null],
+    ["Product Type","แป๊บแบน",null],
+    ["SLoc","Fac.XX","7"]
+  ]},
 ];
 
 /* ════════════════════════════════════════
@@ -566,17 +907,14 @@ function buildTable() {
       const isErr = errorId !== null;
 
       if (cfg.allCells) {
-        // medium/hard: all cells clickable
         td.className = 'clickable';
       } else {
-        // easy: only error cells clickable
         td.className = isErr ? 'clickable error-hint' : '';
         if (!isErr) { td.style.cursor = 'default'; }
       }
 
       td.textContent = val;
 
-      // Penalty dots (medium only; hard hides them)
       if (isErr && cfg.showDots) {
         const pd = document.createElement('div');
         pd.className = 'pen-dots';
@@ -621,13 +959,12 @@ function openDimModal(col, val, wrongSoFar) {
   document.getElementById('fp-val').textContent = val;
   document.getElementById('wrong-msg').textContent = '';
 
-  // Attempt dots
   const attWrap = document.getElementById('att-row-wrap');
   const attDots = document.getElementById('att-dots');
   attDots.innerHTML = '';
 
   if (cfg.maxAttempts >= 99) {
-    attWrap.style.display = 'none'; // easy: unlimited, hide dots row
+    attWrap.style.display = 'none';
   } else {
     attWrap.style.display = 'flex';
     for (let i = 0; i < cfg.maxAttempts; i++) {
@@ -639,11 +976,9 @@ function openDimModal(col, val, wrongSoFar) {
     lbl.textContent = cfg.maxAttempts === 1 ? '⚠️ โอกาสเดียวเท่านั้น!' : 'โอกาสที่เหลือ:';
   }
 
-  // Build buttons
   const grid = document.getElementById('dim-grid');
   grid.innerHTML = '';
 
-  // "ปกติ" button — hidden in easy mode (only error cells shown)
   if (cfg.showNone) {
     const nw = document.createElement('div'); nw.className = 'none-wrap';
     const nb = document.createElement('button'); nb.className = 'none-btn';
@@ -701,11 +1036,9 @@ function handleChoice(chosen, btnEl) {
     btnEl.classList.add('wf');
     setTimeout(() => btnEl.classList.remove('wf'), 400);
 
-    // Update attempt dots in modal
     const dots = document.getElementById('att-dots').children;
     if (dots[attempts[key] - 1]) dots[attempts[key] - 1].classList.add('used');
 
-    // Update penalty dots on cell
     if (isError && cfg.showDots) {
       const pdEl = document.getElementById(`pd-${ri}-${ci}`);
       if (pdEl && pdEl.children[attempts[key] - 1]) pdEl.children[attempts[key] - 1].classList.add('used');
@@ -798,18 +1131,15 @@ function startGame() {
 
   if (cfg.showHint) document.body.classList.add('easy-mode');
 
-  // HUD mode badge
   const hudBadge = document.getElementById('mode-badge-hud');
   hudBadge.textContent = cfg.label;
-  hudBadge.style.cssText = `font-size:.72rem;font-weight:700;padding:.25rem .6rem;border-radius:3px;letter-spacing:.1em;background:${cfg.color}22;color:${cfg.color};border:1px solid ${cfg.color}55`;
+  hudBadge.style.cssText = `font-size:.85rem;font-weight:700;padding:.3rem .7rem;border-radius:3px;letter-spacing:.1em;background:${cfg.color}22;color:${cfg.color};border:1px solid ${cfg.color}55`;
 
-  // Console right text
   document.getElementById('con-right-text').textContent =
     selectedMode === 'easy'   ? 'MODE: EASY — HINTS ON' :
     selectedMode === 'medium' ? 'MODE: MEDIUM — ALL CELLS' :
                                 'MODE: HARD — ONE SHOT';
 
-  // Legend
   const legends = {
     easy:   ['💡 แสงกะพริบ = ช่องผิดปกติ', '🖱 คลิกช่องที่สงสัยเพื่อตรวจสอบ', '✅ เลือก Dimension ให้ถูกต้อง'],
     medium: ['🖱 คลิกทุกช่องเพื่อตรวจสอบ', '✅ ช่องปกติ = ตอบ "ไม่มีความผิดปกติ"', '🔴 จุดเล็กๆ = ครั้งที่เดาผิด', '❌ ผิด 3 ครั้ง = ล็อค'],
@@ -866,7 +1196,6 @@ function endGame(isWin) {
 }
 
 function restartSameMode() {
-  // Reset state and restart without reloading
   clearInterval(timerHnd);
   foundSet  = new Set(); lockedSet = new Set();
   dismissed = new Set(); attempts  = {};
