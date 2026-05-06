@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DATA DETECTIVE — Warehouse Anomaly</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #080808;
+  --bg2:      #0f0f0f;
+  --bg3:      #161616;
+  --panel:    #111;
+  --red:      #dc1f1f;
+  --red2:     #ff2e2e;
+  --red-glow: rgba(220,31,31,0.4);
+  --red-dim:  rgba(220,31,31,0.1);
+  --border:   rgba(220,31,31,0.2);
+  --border2:  #1e1e1e;
+  --text:     #e2e2e2;
+  --muted:    #4a4a4a;
+  --muted2:   #777;
+  --green:    #22c55e;
+  --amber:    #f59e0b;
+  --blue:     #38bdf8;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background:repeating-linear-gradient(to bottom,transparent 0,transparent 2px,rgba(0,0,0,0.055) 2px,rgba(0,0,0,0.055) 4px)}
+
+/* ════════════════════════════════
+   START / MODE SELECT
+════════════════════════════════ */
+#start-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem}
+.start-card{
+  max-width:660px;width:100%;background:var(--panel);
+  border:1px solid var(--border);border-top:3px solid var(--red);
+  border-radius:4px;padding:2.5rem 2.5rem 2.25rem;
+  text-align:center;position:relative;overflow:hidden;
+}
+.start-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--red2),transparent);
+  animation:scanh 3s ease-in-out infinite;
+}
+@keyframes scanh{0%,100%{transform:scaleX(0);opacity:0}50%{transform:scaleX(1);opacity:1}}
+
+.logo{font-size:2.8rem;margin-bottom:.4rem}
+.start-card h1{font-size:2rem;font-weight:900;color:var(--red2);letter-spacing:.05em;text-shadow:0 0 22px var(--red-glow);margin-bottom:.25rem}
+.start-subtitle{font-size:.78rem;font-weight:300;color:var(--muted2);margin-bottom:1.6rem;line-height:1.65}
+.start-subtitle strong{color:var(--text);font-weight:600}
+
+/* 8 Dimensions mini grid */
+.dim-legend{display:grid;grid-template-columns:repeat(4,1fr);gap:.45rem;margin-bottom:1.6rem}
+.dl-item{background:var(--bg3);border:1px solid var(--border2);border-radius:4px;padding:.55rem .35rem;text-align:center}
+.dl-icon{font-size:1.2rem;margin-bottom:.18rem}
+.dl-name{font-size:.6rem;font-weight:700;color:var(--red2);line-height:1.2}
+.dl-th{font-size:.55rem;font-weight:300;color:var(--muted2)}
+
+/* Mode selector */
+.mode-label{font-size:.65rem;font-weight:600;color:var(--muted2);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.65rem}
+.mode-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.7rem;margin-bottom:1.6rem}
+.mode-card{
+  background:var(--bg3);border:2px solid var(--border2);border-radius:6px;
+  padding:1.1rem .7rem 1rem;cursor:pointer;
+  transition:border-color .18s,background .18s,transform .15s;
+  position:relative;overflow:hidden;
+}
+.mode-card::after{
+  content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;
+}
+.mode-card:hover{transform:translateY(-2px)}
+.mode-card.easy:hover{border-color:var(--green);background:rgba(34,197,94,.06)}
+.mode-card.med:hover{border-color:var(--amber);background:rgba(245,158,11,.06)}
+.mode-card.hard:hover{border-color:var(--red2);background:rgba(220,31,31,.08)}
+
+.mode-card.selected-easy{border-color:var(--green);background:rgba(34,197,94,.1)}
+.mode-card.selected-med{border-color:var(--amber);background:rgba(245,158,11,.09)}
+.mode-card.selected-hard{border-color:var(--red2);background:rgba(220,31,31,.12)}
+
+.mode-badge{
+  font-size:.62rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  border-radius:3px;padding:.15rem .45rem;display:inline-block;margin-bottom:.5rem;
+}
+.badge-easy{background:rgba(34,197,94,.18);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+.badge-med{background:rgba(245,158,11,.18);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+.badge-hard{background:rgba(220,31,31,.18);color:var(--red2);border:1px solid rgba(220,31,31,.3)}
+
+.mode-icon{font-size:1.8rem;margin-bottom:.4rem}
+.mode-name{font-size:.95rem;font-weight:800;margin-bottom:.5rem}
+.mode-name-easy{color:var(--green)}
+.mode-name-med{color:var(--amber)}
+.mode-name-hard{color:var(--red2)}
+
+.mode-specs{list-style:none;text-align:left;font-size:.66rem;font-weight:300;color:var(--muted2);line-height:1.9}
+.mode-specs li::before{content:'▸ ';opacity:.5}
+.mode-specs .spec-hi{font-weight:600}
+.spec-hi-easy{color:var(--green)}
+.spec-hi-med{color:var(--amber)}
+.spec-hi-hard{color:var(--red2)}
+
+.checkmark{
+  position:absolute;top:.5rem;right:.6rem;font-size:1rem;
+  opacity:0;transition:opacity .2s;
+}
+.mode-card.selected-easy .checkmark,
+.mode-card.selected-med  .checkmark,
+.mode-card.selected-hard .checkmark{opacity:1}
+
+.btn-start{
+  width:100%;background:var(--red);border:none;color:#fff;
+  font-family:'Kanit',sans-serif;font-size:1.05rem;font-weight:700;
+  letter-spacing:.12em;text-transform:uppercase;
+  padding:.9rem;cursor:pointer;border-radius:3px;
+  transition:background .2s,box-shadow .2s,opacity .2s;
+}
+.btn-start:hover{background:var(--red2);box-shadow:0 0 22px var(--red-glow)}
+.btn-start:disabled{opacity:.35;cursor:not-allowed}
+
+/* ════════════════════════════════
+   GAME SCREEN
+════════════════════════════════ */
+#game-screen{display:none;min-height:100vh;flex-direction:column;align-items:center;padding:1rem}
+
+/* HUD bar */
+.hud{width:100%;max-width:1200px;display:flex;gap:.7rem;margin-bottom:.75rem;flex-wrap:wrap;align-items:stretch}
+.hud-box{background:var(--panel);border:1px solid var(--border);border-radius:3px;padding:.5rem 1.1rem;display:flex;align-items:center;gap:.65rem}
+.hud-icon{font-size:1.05rem}
+.hud-lbl{font-size:.57rem;font-weight:300;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em}
+.hud-val{font-size:1.35rem;font-weight:800;line-height:1}
+#timer-val{color:var(--amber)}
+#score-val{color:var(--red2)}
+#mode-badge-hud{font-size:.65rem;font-weight:700;padding:.25rem .55rem;border-radius:3px;letter-spacing:.1em}
+
+.timer-warn{color:var(--red2)!important;animation:blink .65s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.18}}
+
+.prog-hud{flex:1;min-width:160px;background:var(--panel);border:1px solid var(--border);border-radius:3px;padding:.5rem 1.1rem;display:flex;flex-direction:column;justify-content:center;gap:.28rem}
+.ph-row{display:flex;justify-content:space-between;align-items:center}
+.ph-lbl{font-size:.57rem;font-weight:300;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em}
+.ph-pct{font-size:.72rem;font-weight:700;color:var(--red2)}
+.prog-track{background:#1a1a1a;height:5px;border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:var(--red);border-radius:3px;width:0%;transition:width .4s ease;box-shadow:0 0 7px var(--red-glow)}
+
+/* Console */
+.console{width:100%;max-width:1200px;background:var(--panel);border:1px solid var(--border);border-radius:3px;overflow:hidden}
+.con-hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:.5rem 1rem;display:flex;justify-content:space-between;align-items:center}
+.dot-row{display:flex;gap:.32rem}
+.dot{width:9px;height:9px;border-radius:50%}
+.dot-r{background:var(--red);animation:pingr 2s infinite}
+@keyframes pingr{0%,100%{opacity:1}50%{opacity:.22}}
+.dot-y{background:var(--amber)}.dot-g{background:var(--green)}
+.con-title{font-size:.65rem;font-weight:500;letter-spacing:.17em;color:var(--muted2);text-transform:uppercase}
+.con-right{font-size:.6rem;color:var(--muted2);letter-spacing:.08em;font-weight:400}
+
+/* Table */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:1020px;font-size:.8rem;font-weight:400}
+thead th{background:rgba(0,0,0,.55);color:var(--muted2);font-weight:500;font-size:.61rem;text-transform:uppercase;letter-spacing:.1em;padding:.68rem .9rem;border-bottom:1px solid var(--border);text-align:left}
+tbody tr{border-bottom:1px solid #161616;transition:background .1s}
+tbody tr:hover{background:rgba(220,31,31,.025)}
+tbody td{padding:.57rem .9rem;color:#c4c4c4;cursor:pointer;transition:background .12s,color .12s;position:relative;user-select:none}
+td.batch-id{color:var(--muted);font-size:.71rem;cursor:default;font-weight:400}
+td.clickable:hover{background:rgba(220,31,31,.07);color:#fff}
+
+/* EASY mode: error cells pulse subtle amber glow */
+body.easy-mode td.error-hint{
+  animation:hint-pulse 2.5s ease-in-out infinite;
+}
+@keyframes hint-pulse{
+  0%,100%{box-shadow:inset 0 0 0 0 transparent}
+  50%{box-shadow:inset 0 0 0 1px rgba(245,158,11,.35)}
+}
+
+td.found{color:var(--green)!important;text-decoration:line-through;background:rgba(34,197,94,.07)!important;cursor:default;pointer-events:none}
+td.locked{opacity:.28;cursor:not-allowed;pointer-events:none;text-decoration:line-through}
+td.wrong-flash{animation:wcell .45s ease}
+@keyframes wcell{0%,100%{background:transparent}40%{background:rgba(220,31,31,.22)}}
+td.correct-flash{animation:ccell .4s ease}
+@keyframes ccell{0%,100%{background:transparent}40%{background:rgba(34,197,94,.18)}}
+
+/* penalty dots */
+.pen-dots{position:absolute;top:4px;right:5px;display:flex;gap:2px}
+.pdot{width:4px;height:4px;border-radius:50%;background:#222;transition:background .15s}
+.pdot.used{background:var(--red2)}
+
+/* legend */
+.legend-strip{margin-top:.5rem;display:flex;gap:1.2rem;flex-wrap:wrap;font-size:.63rem;color:var(--muted2);font-weight:300}
+
+/* ════════════════════════════════
+   DIM MODAL
+════════════════════════════════ */
+#dim-modal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;padding:1rem;z-index:200}
+.dim-card{background:var(--panel);border:1px solid var(--border);border-top:3px solid var(--red);border-radius:4px;padding:1.7rem 1.7rem 1.45rem;max-width:580px;width:100%}
+.dim-card h2{font-size:.8rem;font-weight:700;color:var(--red2);letter-spacing:.14em;text-transform:uppercase;margin-bottom:.18rem}
+.dim-card .dim-sub{font-size:.72rem;font-weight:300;color:var(--muted2);margin-bottom:.8rem;line-height:1.5}
+
+.field-prev{background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:.42rem .78rem;margin-bottom:.75rem}
+.fp-col{font-size:.55rem;color:var(--muted2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.1rem}
+.fp-val{font-size:.9rem;font-weight:700;color:var(--text)}
+
+.att-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.38rem}
+.att-lbl{font-size:.6rem;color:var(--muted2);flex:1}
+.att-dots{display:flex;gap:4px}
+.adot{width:8px;height:8px;border-radius:50%;background:#222;border:1px solid #333;transition:background .2s}
+.adot.used{background:var(--red2);border-color:var(--red2)}
+
+.wrong-msg{font-size:.69rem;color:var(--red2);min-height:.95rem;margin-bottom:.52rem;font-weight:400;text-align:center}
+
+/* 3-col dim buttons */
+.dim-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.42rem;margin-bottom:.48rem}
+.none-wrap{grid-column:1/-1}
+
+.dim-btn{
+  background:var(--bg3);border:1px solid #1e1e1e;border-radius:4px;
+  padding:.52rem .38rem;display:flex;flex-direction:column;align-items:center;gap:.18rem;
+  cursor:pointer;font-family:'Kanit',sans-serif;font-size:.67rem;font-weight:500;color:var(--muted2);
+  text-align:center;line-height:1.3;transition:all .12s;min-height:58px;justify-content:center;
+}
+.dim-btn .dic{font-size:1.05rem}
+.dim-btn:hover{border-color:var(--red);color:var(--text);background:var(--red-dim)}
+.dim-btn.cf{border-color:var(--green)!important;color:var(--green)!important;background:rgba(34,197,94,.1)!important}
+.dim-btn.wf{border-color:var(--red2)!important;color:var(--red2)!important;background:var(--red-dim)!important;animation:shk .3s ease}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+.none-btn{
+  width:100%;background:var(--bg3);border:1px solid #1e1e1e;border-radius:4px;
+  padding:.47rem .8rem;display:flex;align-items:center;justify-content:center;gap:.45rem;
+  cursor:pointer;font-family:'Kanit',sans-serif;font-size:.7rem;font-weight:500;color:var(--muted2);
+  transition:all .12s;
+}
+.none-btn:hover{border-color:var(--green);color:var(--green);background:rgba(34,197,94,.07)}
+.none-btn.cf{border-color:var(--green)!important;color:var(--green)!important;background:rgba(34,197,94,.1)!important}
+.none-btn.wf{border-color:var(--red2)!important;color:var(--red2)!important;background:var(--red-dim)!important}
+
+.btn-cancel{width:100%;background:none;border:1px solid #1e1e1e;color:var(--muted2);font-family:'Kanit',sans-serif;font-size:.72rem;font-weight:400;padding:.46rem;cursor:pointer;border-radius:3px;transition:border-color .15s,color .15s;margin-top:.38rem}
+.btn-cancel:hover{border-color:#444;color:var(--text)}
+
+/* Easy mode: dim modal hides "NONE" option — error cells only shown, so cancel available */
+/* (handled in JS) */
+
+/* ════════════════════════════════
+   RESULT MODAL
+════════════════════════════════ */
+#result-modal{position:fixed;inset:0;background:rgba(0,0,0,.9);display:none;align-items:center;justify-content:center;padding:1rem;z-index:300}
+.result-card{background:var(--panel);border:1px solid var(--border);border-radius:4px;padding:1.8rem 1.9rem 1.65rem;max-width:500px;width:100%}
+.res-badge{font-size:.59rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--red2);border:1px solid var(--red);border-radius:2px;padding:.14rem .48rem;display:inline-block;margin-bottom:.52rem}
+.res-title{font-size:1.38rem;font-weight:800;color:#fff;margin-bottom:.62rem}
+.res-desc{background:var(--bg3);border-left:3px solid var(--red);padding:.78rem .95rem;border-radius:0 3px 3px 0;font-size:.81rem;font-weight:300;color:#bbb;line-height:1.7;margin-bottom:.95rem}
+.btn-ok{width:100%;background:var(--red);border:none;color:#fff;font-family:'Kanit',sans-serif;font-size:.87rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:.7rem;cursor:pointer;border-radius:3px;transition:background .2s,box-shadow .2s}
+.btn-ok:hover{background:var(--red2);box-shadow:0 0 14px var(--red-glow)}
+
+/* ════════════════════════════════
+   END MODAL
+════════════════════════════════ */
+#end-modal{position:fixed;inset:0;background:rgba(0,0,0,.97);display:none;align-items:center;justify-content:center;padding:1.5rem;z-index:400;text-align:center;overflow-y:auto}
+.end-card{max-width:660px;width:100%;padding:.75rem 0 2rem}
+.end-ico{font-size:3.8rem;margin-bottom:.55rem}
+.end-status{font-size:2.3rem;font-weight:900;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem}
+.win{color:var(--green);text-shadow:0 0 26px rgba(34,197,94,.35)}
+.lose{color:var(--red2);text-shadow:0 0 26px var(--red-glow)}
+.end-meta{display:flex;justify-content:center;gap:1rem;margin-bottom:1.1rem;flex-wrap:wrap}
+.end-meta-chip{background:var(--bg3);border:1px solid var(--border2);border-radius:3px;padding:.3rem .75rem;font-size:.72rem;font-weight:500;color:var(--muted2)}
+.end-meta-chip span{color:var(--text);font-weight:700}
+
+.ans-panel{background:var(--panel);border:1px solid var(--border);border-radius:4px;margin-bottom:1.35rem;overflow:hidden;text-align:left}
+.ans-panel h4{font-size:.59rem;font-weight:700;color:var(--muted2);letter-spacing:.15em;text-transform:uppercase;padding:.58rem 1rem;background:var(--bg3);border-bottom:1px solid var(--border2)}
+.ans-item{display:flex;align-items:flex-start;gap:.58rem;padding:.58rem 1rem;border-bottom:1px solid var(--border2);font-size:.8rem}
+.ans-item:last-child{border-bottom:none}
+.ans-ico{flex-shrink:0;font-size:.9rem;margin-top:.1rem}
+.ans-dim{font-size:.67rem;font-weight:600;color:var(--red2);margin-bottom:.1rem}
+.ans-desc{font-size:.75rem;font-weight:300;color:var(--muted2);line-height:1.55}
+
+.end-btns{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
+.btn-restart{background:var(--red);border:none;color:#fff;font-family:'Kanit',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;padding:.8rem 2.5rem;cursor:pointer;border-radius:3px;transition:background .2s,box-shadow .2s}
+.btn-restart:hover{background:var(--red2);box-shadow:0 0 20px var(--red-glow)}
+.btn-change{background:none;border:1px solid var(--border);color:var(--muted2);font-family:'Kanit',sans-serif;font-size:.88rem;font-weight:500;padding:.8rem 2rem;cursor:pointer;border-radius:3px;transition:border-color .2s,color .2s}
+.btn-change:hover{border-color:var(--muted2);color:var(--text)}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     START / MODE SELECT
+══════════════════════════════════════ -->
+<div id="start-screen">
+  <div class="start-card">
+    <div class="logo">🔍</div>
+    <h1>DATA DETECTIVE</h1>
+    <p class="start-subtitle">ตรวจสอบข้อมูลคลังสินค้า — ค้นหาความผิดปกติทั้ง <strong>8 จุด</strong> ใน <strong>8 Dimensions</strong></p>
+
+    <!-- 8 Dimensions -->
+    <div class="dim-legend">
+      <div class="dl-item"><div class="dl-icon">🎯</div><div class="dl-name">Accuracy</div><div class="dl-th">ความถูกต้อง</div></div>
+      <div class="dl-item"><div class="dl-icon">📋</div><div class="dl-name">Completeness</div><div class="dl-th">ความครบถ้วน</div></div>
+      <div class="dl-item"><div class="dl-icon">🔄</div><div class="dl-name">Consistency</div><div class="dl-th">ความสอดคล้อง</div></div>
+      <div class="dl-item"><div class="dl-icon">🔁</div><div class="dl-name">Uniqueness</div><div class="dl-th">ความเป็นหนึ่งเดียว</div></div>
+      <div class="dl-item"><div class="dl-icon">⏱</div><div class="dl-name">Timeliness</div><div class="dl-th">ความทันสมัย</div></div>
+      <div class="dl-item"><div class="dl-icon">✔️</div><div class="dl-name">Validity</div><div class="dl-th">ความสมเหตุสมผล</div></div>
+      <div class="dl-item"><div class="dl-icon">🔗</div><div class="dl-name">Integrity</div><div class="dl-th">ความสัมพันธ์ถูกต้อง</div></div>
+      <div class="dl-item"><div class="dl-icon">🔓</div><div class="dl-name">Accessibility</div><div class="dl-th">ความง่ายในการเข้าถึง</div></div>
+    </div>
+
+    <!-- Mode selector -->
+    <div class="mode-label">เลือกระดับความยาก</div>
+    <div class="mode-cards">
+
+      <!-- EASY -->
+      <div class="mode-card easy" onclick="selectMode('easy')">
+        <span class="checkmark">✅</span>
+        <div class="mode-badge badge-easy">ง่าย</div>
+        <div class="mode-icon">🟢</div>
+        <div class="mode-name mode-name-easy">EASY</div>
+        <ul class="mode-specs">
+          <li>เวลา <span class="spec-hi spec-hi-easy">5 นาที</span></li>
+          <li>กดเฉพาะ<span class="spec-hi spec-hi-easy">ช่องผิดเท่านั้น</span></li>
+          <li>มี<span class="spec-hi spec-hi-easy">แสงกะพริบ</span>บอกใบ้</li>
+          <li>ไม่มี penalty</li>
+          <li>โอกาส<span class="spec-hi spec-hi-easy">ไม่จำกัด</span></li>
+        </ul>
+      </div>
+
+      <!-- MEDIUM -->
+      <div class="mode-card med" onclick="selectMode('medium')">
+        <span class="checkmark">✅</span>
+        <div class="mode-badge badge-med">ปานกลาง</div>
+        <div class="mode-icon">🟡</div>
+        <div class="mode-name mode-name-med">MEDIUM</div>
+        <ul class="mode-specs">
+          <li>เวลา <span class="spec-hi spec-hi-med">3 นาที</span></li>
+          <li><span class="spec-hi spec-hi-med">ทุกช่องกดได้</span></li>
+          <li>ไม่มีใบ้</li>
+          <li>โอกาส<span class="spec-hi spec-hi-med">3 ครั้ง</span>/จุด</li>
+          <li>มี penalty dots</li>
+        </ul>
+      </div>
+
+      <!-- HARD -->
+      <div class="mode-card hard" onclick="selectMode('hard')">
+        <span class="checkmark">✅</span>
+        <div class="mode-badge badge-hard">ยาก</div>
+        <div class="mode-icon">🔴</div>
+        <div class="mode-name mode-name-hard">HARD</div>
+        <ul class="mode-specs">
+          <li>เวลา <span class="spec-hi spec-hi-hard">2 นาที</span></li>
+          <li><span class="spec-hi spec-hi-hard">ทุกช่องกดได้</span></li>
+          <li>ไม่มีใบ้ ไม่มี dots</li>
+          <li>โอกาส<span class="spec-hi spec-hi-hard">1 ครั้ง</span>/จุด</li>
+          <li>ผิด = ล็อคทันที</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <button class="btn-start" id="btn-start" onclick="startGame()" disabled>
+      เลือกโหมดก่อนเริ่ม
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     GAME SCREEN
+══════════════════════════════════════ -->
+<div id="game-screen">
+  <div class="hud">
+    <div class="hud-box">
+      <span class="hud-icon">⏱</span>
+      <div><div class="hud-lbl">เวลาที่เหลือ</div><div class="hud-val" id="timer-val">00:00</div></div>
+    </div>
+    <div class="hud-box">
+      <span class="hud-icon">🔺</span>
+      <div><div class="hud-lbl">พบแล้ว</div><div class="hud-val" id="score-val">0 / 8</div></div>
+    </div>
+    <div class="prog-hud">
+      <div class="ph-row"><span class="ph-lbl">ความคืบหน้า</span><span class="ph-pct" id="pct-lbl">0%</span></div>
+      <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+    </div>
+    <div class="hud-box">
+      <span id="mode-badge-hud"></span>
+    </div>
+  </div>
+
+  <div class="console">
+    <div class="con-hdr">
+      <div class="dot-row">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+      </div>
+      <span class="con-title">📦 Warehouse_Data_Console_v4</span>
+      <span class="con-right" id="con-right-text">ANOMALY SCAN: ON</span>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Batch ID</th>
+            <th>SKU Code</th>
+            <th>Item Name</th>
+            <th>Qty</th>
+            <th>Category</th>
+            <th>Received Date</th>
+            <th>Supplier ID</th>
+            <th>Warehouse Zone</th>
+            <th>UOM</th>
+            <th>Access Level</th>
+          </tr>
+        </thead>
+        <tbody id="tbl-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="legend-strip" id="legend-strip"></div>
+</div>
+
+<!-- ══════════════════════════════════════
+     DIM MODAL
+══════════════════════════════════════ -->
+<div id="dim-modal">
+  <div class="dim-card">
+    <h2>🔍 ระบุ Data Quality Dimension</h2>
+    <p class="dim-sub" id="dim-sub-text">ช่องนี้มีปัญหาหรือไม่? ถ้ามี — เป็น Dimension ใด?</p>
+    <div class="field-prev">
+      <div class="fp-col" id="fp-col">Column</div>
+      <div class="fp-val" id="fp-val">—</div>
+    </div>
+    <div class="att-row" id="att-row-wrap">
+      <span class="att-lbl" id="att-lbl">โอกาสที่เหลือ:</span>
+      <div class="att-dots" id="att-dots"></div>
+    </div>
+    <div class="wrong-msg" id="wrong-msg"></div>
+    <div class="dim-grid" id="dim-grid"></div>
+    <button class="btn-cancel" onclick="cancelDim()">↩ ยกเลิก / เลือกช่องใหม่</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     RESULT MODAL
+══════════════════════════════════════ -->
+<div id="result-modal">
+  <div class="result-card">
+    <span class="res-badge" id="res-badge">DIMENSION</span>
+    <div class="res-title" id="res-title">✅ ตรวจสอบสำเร็จ!</div>
+    <div class="res-desc" id="res-desc"></div>
+    <button class="btn-ok" onclick="closeResult()">📋 บันทึกและค้นหาต่อ</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     END MODAL
+══════════════════════════════════════ -->
+<div id="end-modal">
+  <div class="end-card">
+    <div class="end-ico" id="end-ico">🏁</div>
+    <div class="end-status" id="end-status">—</div>
+    <div class="end-meta" id="end-meta"></div>
+    <div class="ans-panel">
+      <h4>📂 เฉลยทั้งหมด — 8 Data Quality Dimensions</h4>
+      <div id="ans-list"></div>
+    </div>
+    <div class="end-btns">
+      <button class="btn-restart" onclick="restartSameMode()">🔄 เล่นอีกครั้ง</button>
+      <button class="btn-change" onclick="location.reload()">⚙️ เปลี่ยนโหมด</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════
+   CONSTANTS
+════════════════════════════════════════ */
+const DIMENSIONS = [
+  { key:"Accuracy",      icon:"🎯", label:"Accuracy\nความถูกต้อง" },
+  { key:"Completeness",  icon:"📋", label:"Completeness\nความครบถ้วน" },
+  { key:"Consistency",   icon:"🔄", label:"Consistency\nสอดคล้อง" },
+  { key:"Uniqueness",    icon:"🔁", label:"Uniqueness\nไม่ซ้ำซ้อน" },
+  { key:"Timeliness",    icon:"⏱",  label:"Timeliness\nทันสมัย" },
+  { key:"Validity",      icon:"✔️", label:"Validity\nสมเหตุสมผล" },
+  { key:"Integrity",     icon:"🔗", label:"Integrity\nสัมพันธ์ถูกต้อง" },
+  { key:"Accessibility", icon:"🔓", label:"Accessibility\nเข้าถึงได้" },
+];
+
+const ERRORS = [
+  { id:"0", dim:"Accuracy",      dimTH:"Accuracy — ความถูกต้อง",            icon:"🎯", desc:"จำนวน 9,999,999 ใน #B003 เป็น Outlier ผิดปกติ ข้อมูลต้องตรงกับโลกแห่งความเป็นจริง คาดว่าเกิดจากการพิมพ์ผิดหรือ Error ในระบบนำเข้า" },
+  { id:"1", dim:"Completeness",  dimTH:"Completeness — ความครบถ้วน",         icon:"📋", desc:"หน่วยนับ (UOM) ของ #B002 เป็นค่าว่าง ข้อมูลต้องไม่แหว่ง ทำให้ระบบประมวลผลสต็อกและออกใบเบิกไม่ได้" },
+  { id:"2", dim:"Consistency",   dimTH:"Consistency — ความสอดคล้อง",         icon:"🔄", desc:"วันที่ '04/Nov/2023' ใน #B006 ไม่สอดคล้องกับมาตรฐาน YYYY-MM-DD ของตาราง ข้อมูลในแต่ละระบบต้องพูดเรื่องเดียวกัน" },
+  { id:"3", dim:"Uniqueness",    dimTH:"Uniqueness — ความเป็นหนึ่งเดียว",    icon:"🔁", desc:"พบรหัส SKU-7788-X ซ้ำกันใน #B001 และ #B004 ต้องไม่มีข้อมูลซ้ำซ้อน รหัส SKU ควรเป็น Unique Key ของสินค้า" },
+  { id:"4", dim:"Timeliness",    dimTH:"Timeliness — ความทันสมัย",            icon:"⏱",  desc:"วันที่รับสินค้า '1999-01-01' ใน #B008 เก่าเกินจริง คาดว่าเป็น Default Value ที่ไม่ได้แก้ไข ข้อมูลต้องพร้อมใช้ในเวลาที่ต้องการ" },
+  { id:"5", dim:"Validity",      dimTH:"Validity — ความสมเหตุสมผล",          icon:"✔️", desc:"Supplier ID 'S_03_XXX_99' ใน #B005 ไม่ตรงรูปแบบ SUPP-XX ตามมาตรฐาน ข้อมูลต้องอยู่ในรูปแบบหรือช่วงที่กำหนด" },
+  { id:"6", dim:"Integrity",     dimTH:"Integrity — ความสัมพันธ์ที่ถูกต้อง",icon:"🔗", desc:"Warehouse Zone 'ZONE-Z9' ใน #B007 ไม่มีอยู่ใน Master Zone ข้อมูลในตารางหนึ่งต้องมีความสัมพันธ์ที่ถูกต้องกับอีกตารางหนึ่ง (Foreign Key)" },
+  { id:"7", dim:"Accessibility", dimTH:"Accessibility — ความง่ายในการเข้าถึง",icon:"🔓", desc:"Access Level 'CLASSIFIED-9' ใน #B009 ไม่มีในระบบ ทำให้ไม่มีผู้ใช้คนใดเข้าถึงข้อมูล Batch นี้ได้ — ข้อมูลที่ดีต้องพร้อมให้ผู้มีสิทธิ์ใช้งาน" },
+];
+
+// cols: SKU Code | Item Name | Qty | Category | Received Date | Supplier ID | Warehouse Zone | UOM | Access Level
+const ROWS = [
+  { batch:"#B001", cells:[["SKU Code","SKU-7788-X","3"],["Item Name","Copper Wire 5m",null],["Qty","250",null],["Category","Hardware",null],["Received Date","2023-11-01",null],["Supplier ID","SUPP-01",null],["Warehouse Zone","ZONE-A1",null],["UOM","Rolls",null],["Access Level","STAFF",null]]},
+  { batch:"#B002", cells:[["SKU Code","SKU-1122-A",null],["Item Name","Induction Motor",null],["Qty","5",null],["Category","Electronics",null],["Received Date","2023-11-01",null],["Supplier ID","SUPP-04",null],["Warehouse Zone","ZONE-B2",null],["UOM","(ว่าง)","1"],["Access Level","MANAGER",null]]},
+  { batch:"#B003", cells:[["SKU Code","SKU-9944-Z",null],["Item Name","Steel Sheet 2x4",null],["Qty","9999999","0"],["Category","Metal",null],["Received Date","2023-11-02",null],["Supplier ID","SUPP-02",null],["Warehouse Zone","ZONE-C3",null],["UOM","Units",null],["Access Level","STAFF",null]]},
+  { batch:"#B004", cells:[["SKU Code","SKU-7788-X","3"],["Item Name","Copper Wire 5m",null],["Qty","100",null],["Category","Hardware",null],["Received Date","2023-11-02",null],["Supplier ID","SUPP-01",null],["Warehouse Zone","ZONE-A1",null],["UOM","Rolls",null],["Access Level","STAFF",null]]},
+  { batch:"#B005", cells:[["SKU Code","SKU-4455-B",null],["Item Name","Rubber Seal",null],["Qty","1000",null],["Category","Chemical",null],["Received Date","2023-11-03",null],["Supplier ID","S_03_XXX_99","5"],["Warehouse Zone","ZONE-D4",null],["UOM","Pack",null],["Access Level","STAFF",null]]},
+  { batch:"#B006", cells:[["SKU Code","SKU-8811-C",null],["Item Name","Aluminum Tube",null],["Qty","40",null],["Category","Metal",null],["Received Date","04/Nov/2023","2"],["Supplier ID","SUPP-02",null],["Warehouse Zone","ZONE-C3",null],["UOM","Units",null],["Access Level","MANAGER",null]]},
+  { batch:"#B007", cells:[["SKU Code","SKU-2233-D",null],["Item Name","Power Drill",null],["Qty","15",null],["Category","Tools",null],["Received Date","2023-11-04",null],["Supplier ID","SUPP-05",null],["Warehouse Zone","ZONE-Z9","6"],["UOM","Boxes",null],["Access Level","STAFF",null]]},
+  { batch:"#B008", cells:[["SKU Code","SKU-6677-E",null],["Item Name","Safety Goggles",null],["Qty","50",null],["Category","Safety",null],["Received Date","1999-01-01","4"],["Supplier ID","SUPP-06",null],["Warehouse Zone","ZONE-E5",null],["UOM","Units",null],["Access Level","STAFF",null]]},
+  { batch:"#B009", cells:[["SKU Code","SKU-3322-F",null],["Item Name","Work Boots",null],["Qty","30",null],["Category","Safety",null],["Received Date","2023-11-05",null],["Supplier ID","SUPP-06",null],["Warehouse Zone","ZONE-E5",null],["UOM","Pairs",null],["Access Level","CLASSIFIED-9","7"]]},
+  { batch:"#B010", cells:[["SKU Code","SKU-5544-G",null],["Item Name","Lifting Belt",null],["Qty","20",null],["Category","Safety",null],["Received Date","2023-11-06",null],["Supplier ID","SUPP-06",null],["Warehouse Zone","ZONE-E5",null],["UOM","Units",null],["Access Level","STAFF",null]]},
+];
+
+/* ════════════════════════════════════════
+   MODE CONFIG
+════════════════════════════════════════ */
+const MODE_CONFIG = {
+  easy:   { time:300, maxAttempts:99, allCells:false, showHint:true,  showDots:true,  showNone:false, label:"🟢 EASY",   color:"#22c55e" },
+  medium: { time:180, maxAttempts:3,  allCells:true,  showHint:false, showDots:true,  showNone:true,  label:"🟡 MEDIUM", color:"#f59e0b" },
+  hard:   { time:120, maxAttempts:1,  allCells:true,  showHint:false, showDots:false, showNone:true,  label:"🔴 HARD",   color:"#ff2e2e" },
+};
+
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+let selectedMode = null;
+let cfg          = null;
+let foundSet     = new Set();
+let lockedSet    = new Set();
+let dismissed    = new Set();
+let attempts     = {};
+let timerSec     = 0;
+let timerHnd     = null;
+let isRunning    = false;
+let pending      = null;
+
+/* ════════════════════════════════════════
+   MODE SELECTION
+════════════════════════════════════════ */
+function selectMode(mode) {
+  selectedMode = mode;
+  document.querySelectorAll('.mode-card').forEach(c => {
+    c.classList.remove('selected-easy','selected-med','selected-hard');
+  });
+  const cls = mode === 'easy' ? 'selected-easy' : mode === 'medium' ? 'selected-med' : 'selected-hard';
+  document.querySelector(`.mode-card.${mode === 'medium' ? 'med' : mode}`).classList.add(cls);
+
+  const btn = document.getElementById('btn-start');
+  btn.disabled = false;
+  btn.textContent = mode === 'easy' ? '🟢 เริ่ม — โหมดง่าย' :
+                    mode === 'medium' ? '🟡 เริ่ม — โหมดปานกลาง' :
+                    '🔴 เริ่ม — โหมดยาก';
+}
+
+/* ════════════════════════════════════════
+   BUILD TABLE
+════════════════════════════════════════ */
+function buildTable() {
+  const tbody = document.getElementById('tbl-body');
+  tbody.innerHTML = '';
+  ROWS.forEach((row, ri) => {
+    const tr = document.createElement('tr');
+    const bTd = document.createElement('td');
+    bTd.className = 'batch-id';
+    bTd.textContent = row.batch;
+    tr.appendChild(bTd);
+
+    row.cells.forEach(([col, val, errorId], ci) => {
+      const td = document.createElement('td');
+      td.id = `td-${ri}-${ci}`;
+
+      const isErr = errorId !== null;
+
+      if (cfg.allCells) {
+        // medium/hard: all cells clickable
+        td.className = 'clickable';
+      } else {
+        // easy: only error cells clickable
+        td.className = isErr ? 'clickable error-hint' : '';
+        if (!isErr) { td.style.cursor = 'default'; }
+      }
+
+      td.textContent = val;
+
+      // Penalty dots (medium only; hard hides them)
+      if (isErr && cfg.showDots) {
+        const pd = document.createElement('div');
+        pd.className = 'pen-dots';
+        pd.id = `pd-${ri}-${ci}`;
+        for (let i = 0; i < Math.min(cfg.maxAttempts, 3); i++) {
+          const d = document.createElement('div'); d.className = 'pdot'; pd.appendChild(d);
+        }
+        td.appendChild(pd);
+      }
+
+      if (isErr || cfg.allCells) {
+        td.addEventListener('click', () => onCellClick(ri, ci, col, val, errorId));
+      }
+      tr.appendChild(td);
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+/* ════════════════════════════════════════
+   CELL CLICK
+════════════════════════════════════════ */
+function onCellClick(ri, ci, col, val, errorId) {
+  if (!isRunning) return;
+  const td = document.getElementById(`td-${ri}-${ci}`);
+  if (td.classList.contains('found') || td.classList.contains('locked')) return;
+  if (errorId === null && !cfg.allCells) return;
+  if (errorId === null && dismissed.has(`${ri}-${ci}`)) return;
+  if (errorId !== null && (foundSet.has(errorId) || lockedSet.has(errorId))) return;
+
+  pending = { ri, ci, col, val, errorId };
+  const key = errorId !== null ? `err-${errorId}` : `dec-${ri}-${ci}`;
+  if (attempts[key] === undefined) attempts[key] = 0;
+  openDimModal(col, val, attempts[key]);
+}
+
+/* ════════════════════════════════════════
+   DIM MODAL
+════════════════════════════════════════ */
+function openDimModal(col, val, wrongSoFar) {
+  document.getElementById('fp-col').textContent = col;
+  document.getElementById('fp-val').textContent = val;
+  document.getElementById('wrong-msg').textContent = '';
+
+  // Attempt dots
+  const attWrap = document.getElementById('att-row-wrap');
+  const attDots = document.getElementById('att-dots');
+  attDots.innerHTML = '';
+
+  if (cfg.maxAttempts >= 99) {
+    attWrap.style.display = 'none'; // easy: unlimited, hide dots row
+  } else {
+    attWrap.style.display = 'flex';
+    for (let i = 0; i < cfg.maxAttempts; i++) {
+      const d = document.createElement('div');
+      d.className = 'adot' + (i < wrongSoFar ? ' used' : '');
+      attDots.appendChild(d);
+    }
+    const lbl = document.getElementById('att-lbl');
+    lbl.textContent = cfg.maxAttempts === 1 ? '⚠️ โอกาสเดียวเท่านั้น!' : 'โอกาสที่เหลือ:';
+  }
+
+  // Build buttons
+  const grid = document.getElementById('dim-grid');
+  grid.innerHTML = '';
+
+  // "ปกติ" button — hidden in easy mode (only error cells shown)
+  if (cfg.showNone) {
+    const nw = document.createElement('div'); nw.className = 'none-wrap';
+    const nb = document.createElement('button'); nb.className = 'none-btn';
+    nb.innerHTML = `<span>✅</span><span>ปกติ — ไม่มีความผิดปกติในช่องนี้</span>`;
+    nb.onclick = () => handleChoice('NONE', nb);
+    nw.appendChild(nb); grid.appendChild(nw);
+  }
+
+  DIMENSIONS.forEach(dim => {
+    const btn = document.createElement('button');
+    btn.className = 'dim-btn';
+    btn.innerHTML = `<span class="dic">${dim.icon}</span><span style="white-space:pre-line">${dim.label}</span>`;
+    btn.onclick = () => handleChoice(dim.key, btn);
+    grid.appendChild(btn);
+  });
+
+  document.getElementById('dim-modal').style.display = 'flex';
+}
+
+function cancelDim() {
+  pending = null;
+  document.getElementById('dim-modal').style.display = 'none';
+}
+
+/* ════════════════════════════════════════
+   HANDLE CHOICE
+════════════════════════════════════════ */
+function handleChoice(chosen, btnEl) {
+  const { ri, ci, errorId } = pending;
+  const isError    = errorId !== null;
+  const errObj     = isError ? ERRORS.find(e => e.id === errorId) : null;
+  const correctDim = isError ? errObj.dim : 'NONE';
+  const key        = isError ? `err-${errorId}` : `dec-${ri}-${ci}`;
+  const td         = document.getElementById(`td-${ri}-${ci}`);
+
+  if (chosen === correctDim) {
+    btnEl.classList.add('cf');
+    setTimeout(() => {
+      document.getElementById('dim-modal').style.display = 'none';
+      td.classList.add('correct-flash');
+      if (isError) {
+        markFound(errorId, errObj);
+        showResult(errObj);
+      } else {
+        dismissed.add(`${ri}-${ci}`);
+        td.style.opacity = '0.3';
+        td.style.cursor  = 'default';
+        td.style.pointerEvents = 'none';
+      }
+      pending = null;
+    }, 350);
+  } else {
+    if (attempts[key] === undefined) attempts[key] = 0;
+    attempts[key]++;
+    btnEl.classList.add('wf');
+    setTimeout(() => btnEl.classList.remove('wf'), 400);
+
+    // Update attempt dots in modal
+    const dots = document.getElementById('att-dots').children;
+    if (dots[attempts[key] - 1]) dots[attempts[key] - 1].classList.add('used');
+
+    // Update penalty dots on cell
+    if (isError && cfg.showDots) {
+      const pdEl = document.getElementById(`pd-${ri}-${ci}`);
+      if (pdEl && pdEl.children[attempts[key] - 1]) pdEl.children[attempts[key] - 1].classList.add('used');
+    }
+
+    td.classList.add('wrong-flash');
+    setTimeout(() => td.classList.remove('wrong-flash'), 450);
+
+    const left = cfg.maxAttempts - attempts[key];
+    if (left <= 0) {
+      document.getElementById('wrong-msg').textContent = '❌ หมดโอกาส! ช่องนี้ถูกล็อค';
+      setTimeout(() => {
+        document.getElementById('dim-modal').style.display = 'none';
+        if (isError) { lockedSet.add(errorId); lockAllByError(errorId); }
+        else td.classList.add('locked');
+        pending = null;
+      }, 900);
+    } else {
+      const warn = cfg.maxAttempts === 1 ? '❌ ผิด! ช่องนี้ถูกล็อคทันที' : `❌ ไม่ถูกต้อง — เหลือ ${left} โอกาส`;
+      document.getElementById('wrong-msg').textContent = warn;
+    }
+  }
+}
+
+function lockAllByError(eid) {
+  ROWS.forEach((row, ri) => {
+    row.cells.forEach(([,, eId], ci) => {
+      if (eId === eid) document.getElementById(`td-${ri}-${ci}`).classList.add('locked');
+    });
+  });
+}
+
+/* ════════════════════════════════════════
+   MARK FOUND
+════════════════════════════════════════ */
+function markFound(eid, errObj) {
+  ROWS.forEach((row, ri) => {
+    row.cells.forEach(([,, eId], ci) => {
+      if (eId === eid) document.getElementById(`td-${ri}-${ci}`).classList.add('found');
+    });
+  });
+  foundSet.add(eid);
+  const count = foundSet.size;
+  document.getElementById('score-val').textContent = `${count} / 8`;
+  const pct = Math.round(count / 8 * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('pct-lbl').textContent = pct + '%';
+  if (count === 8) setTimeout(() => endGame(true), 1200);
+}
+
+/* ════════════════════════════════════════
+   RESULT
+════════════════════════════════════════ */
+function showResult(err) {
+  document.getElementById('res-badge').textContent = err.dimTH;
+  document.getElementById('res-title').textContent = `${err.icon} ตรวจสอบสำเร็จ!`;
+  document.getElementById('res-desc').textContent  = err.desc;
+  document.getElementById('result-modal').style.display = 'flex';
+}
+function closeResult() { document.getElementById('result-modal').style.display = 'none'; }
+
+/* ════════════════════════════════════════
+   TIMER
+════════════════════════════════════════ */
+function startTimer() {
+  updateTimerDisplay();
+  timerHnd = setInterval(() => {
+    timerSec--;
+    updateTimerDisplay();
+    if (timerSec <= 0) endGame(false);
+  }, 1000);
+}
+function updateTimerDisplay() {
+  const m = Math.floor(timerSec / 60), s = timerSec % 60;
+  const el = document.getElementById('timer-val');
+  el.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  if (timerSec <= 30) el.classList.add('timer-warn');
+}
+
+/* ════════════════════════════════════════
+   START GAME
+════════════════════════════════════════ */
+function startGame() {
+  if (!selectedMode) return;
+  cfg      = MODE_CONFIG[selectedMode];
+  timerSec = cfg.time;
+
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display  = 'flex';
+
+  if (cfg.showHint) document.body.classList.add('easy-mode');
+
+  // HUD mode badge
+  const hudBadge = document.getElementById('mode-badge-hud');
+  hudBadge.textContent = cfg.label;
+  hudBadge.style.cssText = `font-size:.72rem;font-weight:700;padding:.25rem .6rem;border-radius:3px;letter-spacing:.1em;background:${cfg.color}22;color:${cfg.color};border:1px solid ${cfg.color}55`;
+
+  // Console right text
+  document.getElementById('con-right-text').textContent =
+    selectedMode === 'easy'   ? 'MODE: EASY — HINTS ON' :
+    selectedMode === 'medium' ? 'MODE: MEDIUM — ALL CELLS' :
+                                'MODE: HARD — ONE SHOT';
+
+  // Legend
+  const legends = {
+    easy:   ['💡 แสงกะพริบ = ช่องผิดปกติ', '🖱 คลิกช่องที่สงสัยเพื่อตรวจสอบ', '✅ เลือก Dimension ให้ถูกต้อง'],
+    medium: ['🖱 คลิกทุกช่องเพื่อตรวจสอบ', '✅ ช่องปกติ = ตอบ "ไม่มีความผิดปกติ"', '🔴 จุดเล็กๆ = ครั้งที่เดาผิด', '❌ ผิด 3 ครั้ง = ล็อค'],
+    hard:   ['🖱 คลิกทุกช่องเพื่อตรวจสอบ', '✅ ช่องปกติ = ตอบ "ไม่มีความผิดปกติ"', '⚠️ ผิดครั้งเดียว = ล็อคทันที'],
+  };
+  document.getElementById('legend-strip').innerHTML = legends[selectedMode].map(l => `<span>${l}</span>`).join('');
+
+  buildTable();
+  isRunning = true;
+  startTimer();
+}
+
+/* ════════════════════════════════════════
+   END GAME
+════════════════════════════════════════ */
+function endGame(isWin) {
+  clearInterval(timerHnd);
+  isRunning = false;
+  document.getElementById('dim-modal').style.display    = 'none';
+  document.getElementById('result-modal').style.display = 'none';
+
+  const elapsed = cfg.time - timerSec;
+  const found   = foundSet.size;
+  const modeNames = { easy:'🟢 ง่าย', medium:'🟡 ปานกลาง', hard:'🔴 ยาก' };
+
+  document.getElementById('end-ico').textContent = isWin ? '🏆' : '⌛';
+  const stEl = document.getElementById('end-status');
+  stEl.textContent = isWin ? 'MISSION SUCCESS' : 'TIME EXPIRED';
+  stEl.className   = 'end-status ' + (isWin ? 'win' : 'lose');
+
+  document.getElementById('end-meta').innerHTML = `
+    <div class="end-meta-chip">โหมด: <span>${modeNames[selectedMode]}</span></div>
+    <div class="end-meta-chip">พบ: <span>${found} / 8</span></div>
+    <div class="end-meta-chip">เวลา: <span>${Math.floor(elapsed/60)}:${String(elapsed%60).padStart(2,'0')}</span></div>`;
+
+  const seen = new Set();
+  const list = document.getElementById('ans-list');
+  list.innerHTML = '';
+  ERRORS.forEach(e => {
+    if (seen.has(e.id)) return;
+    seen.add(e.id);
+    const wf = foundSet.has(e.id), wl = lockedSet.has(e.id);
+    const div = document.createElement('div');
+    div.className = 'ans-item';
+    div.innerHTML = `
+      <span class="ans-ico">${wf ? '✅' : wl ? '❌' : '⭕'}</span>
+      <div>
+        <div class="ans-dim">${e.icon} ${e.dimTH}</div>
+        <div class="ans-desc">${e.desc}</div>
+      </div>`;
+    list.appendChild(div);
+  });
+  document.getElementById('end-modal').style.display = 'flex';
+}
+
+function restartSameMode() {
+  // Reset state and restart without reloading
+  clearInterval(timerHnd);
+  foundSet  = new Set(); lockedSet = new Set();
+  dismissed = new Set(); attempts  = {};
+  timerSec  = cfg.time;  isRunning = false; pending = null;
+  document.body.classList.remove('easy-mode');
+  document.getElementById('end-modal').style.display  = 'none';
+  document.getElementById('score-val').textContent    = '0 / 8';
+  document.getElementById('prog-fill').style.width    = '0%';
+  document.getElementById('pct-lbl').textContent      = '0%';
+  document.getElementById('timer-val').classList.remove('timer-warn');
+  if (cfg.showHint) document.body.classList.add('easy-mode');
+  buildTable();
+  isRunning = true;
+  startTimer();
+}
+</script>
+</body>
+</html>
