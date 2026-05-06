@@ -647,72 +647,81 @@ const DIMENSIONS = [
 ];
 
 // คอลัมน์: Shipment | Delivery | Item | External ID | Material Code | Description | Batch | Del.Qty | Gross Wt. | Shipment Type | Group Product | Product Type | SLoc
-// ERRORS — 8 จุดผิดปกติในข้อมูลจัดส่งเหล็ก TMT
+// ══════════════════════════════════════════════════════════
+// ERRORS — 8 จุดผิดปกติ ออกแบบให้สังเกตได้จากข้อมูลในตาราง
+// ข้อมูลอ้างอิงจากระบบ Shipment/Delivery เหล็ก TMT จริง
+// ══════════════════════════════════════════════════════════
 const ERRORS = [
   {
     id:"0", dim:"Accuracy",
     dimTH:"Accuracy — ความถูกต้อง", icon:"🎯",
-    desc:"Gross Weight ของ Shipment 2612906165 แถวท่อเหลี่ยม 100x50x3.2 มม. แสดง 99,999 กก. ซึ่งเป็นไปไม่ได้สำหรับ Delivery Qty เพียง 8 เส้น — ตัวเลขนี้ผิดจากความเป็นจริงอย่างชัดเจน"
+    desc:"Gross Weight ของ SHP-07 (ท่อกลม 76.3mm, Qty=8 เส้น) แสดงค่า 99,999 กก. — น้ำหนักจริงควรอยู่ที่ประมาณ 520 กก. ตัวเลขนี้ผิดพลาดอย่างชัดเจน คาดว่าเกิดจากการพิมพ์ผิดหรือ default value ที่ไม่ได้แก้ไข"
   },
   {
     id:"1", dim:"Completeness",
     dimTH:"Completeness — ความครบถ้วน", icon:"📋",
-    desc:"Batch Number ของแถว Flat Bar 4.00mm รหัส 2FB040-1000-019 เป็นค่าว่าง (SL ปกติต้องมี Batch ระบุ) ทำให้ไม่สามารถ Trace สินค้าย้อนกลับไปยัง Heat Number ของเหล็กได้"
+    desc:"Batch ของ SHP-04 (เหล็กแบน FB 6.00mm) เป็นค่าว่าง — ทุก line item ของสินค้า TMT ที่ผลิตเองต้องมี Batch ระบุเพื่อใช้ Trace กลับ Heat Number ได้ หากไม่มีจะออก Delivery ไม่ได้"
   },
   {
     id:"2", dim:"Consistency",
     dimTH:"Consistency — ความสอดคล้อง", icon:"🔄",
-    desc:"Shipment Type ของรายการท่อกลม 75x25mm (External ID: R6-834109) บันทึกเป็น 'Trading-SYS' ขณะที่ Group Sale ระบุ 'ลูกค้ามารับเอง' — สองค่านี้ขัดแย้งกัน"
+    desc:"SHP-09: Material Code ระบุ '3RPTS01005032-0397' (แป๊บแบน 100×50) แต่ Description กลับบอก 'ท่อกลม 76.3mm' — ทั้งสองต้องตรงกัน รหัสสินค้าและคำอธิบายขัดแย้งกันชัดเจน"
   },
   {
     id:"3", dim:"Uniqueness",
     dimTH:"Uniqueness — ความเป็นหนึ่งเดียว", icon:"🔁",
-    desc:"พบ Delivery Order 2301058097 ปรากฎสองครั้งในระบบ (Item 10 และ Item 20) ด้วย Material Code ต่างกัน บ่งชี้ว่ามีการบันทึก Delivery ซ้ำซ้อน หรือ DO เดิมถูก Copy มาผิด"
+    desc:"พบ Material Code '3BPTS0076-032-0600' ปรากฏใน SHP-05 และ SHP-06 ซ้ำกัน ภายใต้ Delivery เดียวกัน (2301058105) แต่ Item ต่างกัน — บ่งชี้ว่ามีการ Copy line แล้วลืมเปลี่ยน Material"
   },
   {
     id:"4", dim:"Timeliness",
     dimTH:"Timeliness — ความทันสมัย", icon:"⏱",
-    desc:"External ID ของ Shipment 2612906163 แถว WF SS400 บันทึกเป็น '1WF106-250-01776' ซึ่งเป็นรหัสชุดเก่าปี 2563 ที่ยกเลิกแล้ว — ข้อมูลไม่ได้รับการอัปเดตตามมาตรฐานรหัสปัจจุบัน"
+    desc:"SHP-10: Shipment Number '2519906999' เป็นเลขจากปี 2562 ปะปนอยู่ในชุดข้อมูลสัปดาห์ที่ 5 เดือนพฤษภาคม 2569 — Shipment เก่าที่ยังค้างอยู่ในระบบโดยไม่ได้ปิด หรือถูกดึงมาผิด period"
   },
   {
     id:"5", dim:"Validity",
     dimTH:"Validity — ความสมเหตุสมผล", icon:"✔️",
-    desc:"Product Type ของรายการ C-Channel 125x50x20x2.3mm บันทึกเป็น 'ท่อดำ' ซึ่งไม่ถูกต้อง — C-Channel ต้องอยู่ใน Product Type 'ตัวซี' ตามมาตรฐานการจำแนกสินค้าของ TMT"
+    desc:"SHP-03: Del. Qty = 0 เส้น — ค่าศูนย์ไม่ใช่ค่าที่ valid สำหรับ Delivery Order ที่ออกแล้ว Delivery ที่ออกต้องมีจำนวนอย่างน้อย 1 และต้องอยู่ในช่วงที่ระบบอนุมัติ"
   },
   {
     id:"6", dim:"Integrity",
     dimTH:"Integrity — ความสัมพันธ์ที่ถูกต้อง", icon:"🔗",
-    desc:"Group Product 'Pipe-GI' ใน Shipment 2612906162 ถูกจับคู่กับ Group Sale 'ลูกค้ามารับเอง' แต่ SLoc ระบุ Fac.L ซึ่งเป็นคลังสำหรับสินค้า Trading เท่านั้น ความสัมพันธ์ระหว่างตารางขัดแย้งกัน"
+    desc:"SHP-08: Group Product = 'Pipe-GI' แต่ Material Code ขึ้นต้นด้วย '3BPTS' ซึ่งเป็น prefix ของท่อดำ (Black Steel Pipe) ไม่ใช่ GI — รหัสสินค้าและกลุ่มสินค้าไม่สอดคล้องกัน ระบบ Costing จะคำนวณผิด"
   },
   {
     id:"7", dim:"Accessibility",
     dimTH:"Accessibility — ความง่ายในการเข้าถึง", icon:"🔓",
-    desc:"SLoc ของ Delivery 2301055269 แถว Pipe 75x25mm บันทึกเป็น 'Fac.XX' ซึ่งไม่มีอยู่ใน Master Data คลัง — ทำให้ระบบ WMS ไม่สามารถระบุตำแหน่งสินค้าและผู้รับผิดชอบได้"
+    desc:"SHP-02: SLoc = 'FAC-Z' ซึ่งไม่มีอยู่ใน Master Data คลังของ TMT (ค่าที่ valid คือ Fac.K, Fac.O, Fac.L, Fac.02, Fac.03) — ผู้ใช้ระบบ WMS จะไม่สามารถเรียกดูหรือเบิกจ่ายสินค้านี้ได้เลย"
   },
 ];
 
-// ROWS — 10 แถวข้อมูล Shipment เหล็ก TMT สไตล์จริง
-// format: [colName, value, errorId|null]
+// ══════════════════════════════════════════════════════════
+// ROWS — 10 แถว Shipment/Delivery เหล็ก TMT
+// แต่ละแถว: [colName, displayValue, errorId|null]
+// errorId ≠ null = ช่องนี้คือจุดที่ต้องคลิก
+// ความผิดปกติทุกจุดสังเกตได้จากค่าในตารางโดยตรง
+// ══════════════════════════════════════════════════════════
 const ROWS = [
+  // SHP-01: ปกติทุกช่อง — แป๊บแบน 75×45
   { batch:"SHP-01", cells:[
     ["Shipment","2612906159",null],
     ["Delivery","2301054310",null],
     ["Item","10",null],
     ["External ID","R6-834109",null],
     ["Material Code","3SPTS0075-045-0537",null],
-    ["Description","ท่อเหลี่ยม 75×75×4.50×6000mm TIS/JIS",null],
+    ["Description","แป๊บแบน 75×45×3.20×6000mm TIS/JIS",null],
     ["Batch","045002",null],
-    ["Del. Qty","4",null],
-    ["Gross Wt.","214",null],
-    ["Shipment Type","ลูกค้ามารับเอง","2"],
+    ["Del. Qty","60",null],
+    ["Gross Wt.","2,148",null],
+    ["Shipment Type","ลูกค้ามารับเอง",null],
     ["Group Product","Pipe-B",null],
-    ["Product Type","Pipe",null],
+    ["Product Type","แป๊บแบน",null],
     ["SLoc","Fac.O",null]
   ]},
+  // SHP-02: ERROR 7 — SLoc = FAC-Z ไม่มีใน Master (Accessibility)
   { batch:"SHP-02", cells:[
     ["Shipment","2612906160",null],
     ["Delivery","2301057799",null],
-    ["Item","30",null],
+    ["Item","10",null],
     ["External ID","R6-701138",null],
     ["Material Code","2FB090-0750-032",null],
     ["Description","เหล็กแบน 9.00mm×75mm×6000mm SS400",null],
@@ -722,127 +731,135 @@ const ROWS = [
     ["Shipment Type","ลูกค้ามารับเอง",null],
     ["Group Product","FB-A",null],
     ["Product Type","Flat Bars",null],
-    ["SLoc","Fac.K",null]
+    ["SLoc","FAC-Z","7"]
   ]},
+  // SHP-03: ERROR 5 — Del. Qty = 0 (Validity)
   { batch:"SHP-03", cells:[
-    ["Shipment","2612906162",null],
-    ["Delivery","2301057798",null],
+    ["Shipment","2612906161",null],
+    ["Delivery","2301057801",null],
     ["Item","10",null],
-    ["External ID","R6-701138",null],
+    ["External ID","R6-712200",null],
     ["Material Code","3CH11255023-0265",null],
-    ["Description","ตัวซีมีขอบ 125x50x20x2.30mm×6000mm มอก.",null],
+    ["Description","ตัวซีมีขอบ 125×50×20×2.30mm×6000mm มอก.",null],
     ["Batch","023002",null],
-    ["Del. Qty","180",null],
-    ["Gross Wt.","4,465",null],
+    ["Del. Qty","0","5"],
+    ["Gross Wt.","—",null],
     ["Shipment Type","ลูกค้ามารับเอง",null],
     ["Group Product","CH-A",null],
-    ["Product Type","ท่อดำ","5"],
+    ["Product Type","ตัวซี",null],
     ["SLoc","Fac.O",null]
   ]},
+  // SHP-04: ERROR 1 — Batch ว่าง (Completeness)
   { batch:"SHP-04", cells:[
     ["Shipment","2612906162",null],
     ["Delivery","2301057810",null],
-    ["Item","10",null],
-    ["External ID","R6-701138",null],
-    ["Material Code","3RPGITS2-10050-032",null],
-    ["Description","แป๊บแบน 100x50x3.2×6000mm GI TIS/JIS290",null],
-    ["Batch","032021GI",null],
-    ["Del. Qty","320",null],
-    ["Gross Wt.","12,700",null],
-    ["Shipment Type","ลูกค้ามารับเอง",null],
-    ["Group Product","Pipe-GI",null],
-    ["Product Type","Pipe",null],
-    ["SLoc","Fac.L","6"]
-  ]},
-  { batch:"SHP-05", cells:[
-    ["Shipment","2612906162",null],
-    ["Delivery","2301057212",null],
-    ["Item","10",null],
-    ["External ID","R6-701138",null],
-    ["Material Code","3SPGI038-015-0100",null],
-    ["Description","เหล็กกล้า 38×38×1.60mm×6000mm (GI)",null],
-    ["Batch","016001GI",null],
-    ["Del. Qty","100",null],
-    ["Gross Wt.","955",null],
-    ["Shipment Type","ลูกค้ามารับเอง",null],
-    ["Group Product","Pipe-GI",null],
-    ["Product Type","ท่อเหลี่ยม GI",null],
-    ["SLoc","Fac.02",null]
-  ]},
-  { batch:"SHP-06", cells:[
-    ["Shipment","2612906163",null],
-    ["Delivery","2301058097",null],
-    ["Item","10",null],
-    ["External ID","1WF106-250-01776","4"],
-    ["Material Code","1WF106-250-01776",null],
-    ["Description","WF SS400 250x125x6.0×9.0mm×6.0M",null],
-    ["Batch","WFS5400",null],
-    ["Del. Qty","10",null],
-    ["Gross Wt.","1,776",null],
-    ["Shipment Type","Trading-SYS",null],
-    ["Group Product","Beam",null],
-    ["Product Type","WF",null],
-    ["SLoc","Fac.L",null]
-  ]},
-  { batch:"SHP-07", cells:[
-    ["Shipment","2612906163",null],
-    ["Delivery","2301058105",null],
-    ["Item","10",null],
-    ["External ID","R6-711276",null],
-    ["Material Code","3BPTS015032-0710",null],
-    ["Description","ท่อกลม 165.2 (6\") ×3.20×6000mm TIS/JIS",null],
-    ["Batch","032002",null],
-    ["Del. Qty","105",null],
-    ["Gross Wt.","7,379",null],
-    ["Shipment Type","ลูกค้ามารับเอง",null],
-    ["Group Product","Pipe-B",null],
-    ["Product Type","ท่อดำ",null],
-    ["SLoc","Fac.O",null]
-  ]},
-  { batch:"SHP-08", cells:[
-    ["Shipment","2612906163",null],
-    ["Delivery","2301058097",null],
     ["Item","20",null],
-    ["External ID","R6-711276",null],
-    ["Material Code","3RPTS15010032-0666","3"],
-    ["Description","แป๊บแบน 150×100×3.20×6000mm TIS/JIS",null],
-    ["Batch","032002",null],
-    ["Del. Qty","2",null],
-    ["Gross Wt.","133",null],
-    ["Shipment Type","ลูกค้ามารับเอง",null],
-    ["Group Product","Pipe-C",null],
-    ["Product Type","แป๊บแบน",null],
-    ["SLoc","Fac.O",null]
-  ]},
-  { batch:"SHP-09", cells:[
-    ["Shipment","2612906164",null],
-    ["Delivery","2301055269",null],
-    ["Item","30",null],
-    ["External ID","R3-703440",null],
-    ["Material Code","2FB040-1000-019",null],
-    ["Description","เหล็กแบน 4.00mm×100mm×6000mm SS400",null],
+    ["External ID","R6-701138",null],
+    ["Material Code","2FB060-1000-030",null],
+    ["Description","เหล็กแบน 6.00mm×100mm×6000mm SS400",null],
     ["Batch","","1"],
-    ["Del. Qty","166",null],
-    ["Gross Wt.","3,127",null],
+    ["Del. Qty","120",null],
+    ["Gross Wt.","3,394",null],
     ["Shipment Type","ลูกค้ามารับเอง",null],
     ["Group Product","FB-A",null],
     ["Product Type","Flat Bars",null],
     ["SLoc","Fac.K",null]
   ]},
-  { batch:"SHP-10", cells:[
-    ["Shipment","2612906165",null],
-    ["Delivery","2301058152",null],
+  // SHP-05: ERROR 3 — Material Code ซ้ำกับ SHP-06 (Uniqueness)
+  { batch:"SHP-05", cells:[
+    ["Shipment","2612906163",null],
+    ["Delivery","2301058105",null],
+    ["Item","10",null],
+    ["External ID","R6-711276",null],
+    ["Material Code","3BPTS0076-032-0600","3"],
+    ["Description","ท่อกลม 76.3mm×3.20×6000mm TIS/JIS",null],
+    ["Batch","032002",null],
+    ["Del. Qty","50",null],
+    ["Gross Wt.","3,250",null],
+    ["Shipment Type","ลูกค้ามารับเอง",null],
+    ["Group Product","Pipe-B",null],
+    ["Product Type","ท่อดำ",null],
+    ["SLoc","Fac.O",null]
+  ]},
+  // SHP-06: ERROR 3 — Material Code ซ้ำกับ SHP-05 (Uniqueness) — same delivery, different item
+  { batch:"SHP-06", cells:[
+    ["Shipment","2612906163",null],
+    ["Delivery","2301058105",null],
     ["Item","20",null],
+    ["External ID","R6-711276",null],
+    ["Material Code","3BPTS0076-032-0600","3"],
+    ["Description","ท่อกลม 76.3mm×3.20×6000mm TIS/JIS",null],
+    ["Batch","032005",null],
+    ["Del. Qty","30",null],
+    ["Gross Wt.","1,950",null],
+    ["Shipment Type","ลูกค้ามารับเอง",null],
+    ["Group Product","Pipe-B",null],
+    ["Product Type","ท่อดำ",null],
+    ["SLoc","Fac.O",null]
+  ]},
+  // SHP-07: ERROR 0 — Gross Wt = 99,999 (Accuracy)
+  { batch:"SHP-07", cells:[
+    ["Shipment","2612906164",null],
+    ["Delivery","2301058152",null],
+    ["Item","10",null],
+    ["External ID","R3-703440",null],
+    ["Material Code","3BPTS0076-028-0600",null],
+    ["Description","ท่อกลม 76.3mm×2.80×6000mm TIS/JIS",null],
+    ["Batch","032003",null],
+    ["Del. Qty","8",null],
+    ["Gross Wt.","99,999","0"],
+    ["Shipment Type","ลูกค้ามารับเอง",null],
+    ["Group Product","Pipe-B",null],
+    ["Product Type","ท่อดำ",null],
+    ["SLoc","Fac.O",null]
+  ]},
+  // SHP-08: ERROR 6 — Group Product = Pipe-GI แต่ Material Code = 3BPTS (ท่อดำ) (Integrity)
+  { batch:"SHP-08", cells:[
+    ["Shipment","2612906164",null],
+    ["Delivery","2301058154",null],
+    ["Item","10",null],
+    ["External ID","R3-703440",null],
+    ["Material Code","3BPTS0051-020-0600",null],
+    ["Description","ท่อกลม 50.8mm×2.00×6000mm TIS/JIS",null],
+    ["Batch","020001",null],
+    ["Del. Qty","200",null],
+    ["Gross Wt.","4,680",null],
+    ["Shipment Type","ลูกค้ามารับเอง",null],
+    ["Group Product","Pipe-GI","6"],
+    ["Product Type","ท่อดำ",null],
+    ["SLoc","Fac.O",null]
+  ]},
+  // SHP-09: ERROR 2 — Material Code ≠ Description (Consistency)
+  { batch:"SHP-09", cells:[
+    ["Shipment","2612906164",null],
+    ["Delivery","2301058155",null],
+    ["Item","30",null],
+    ["External ID","R3-703440",null],
+    ["Material Code","3RPTS01005032-0397",null],
+    ["Description","ท่อกลม 76.3mm×2.30×6000mm TIS/JIS","2"],
+    ["Batch","023001",null],
+    ["Del. Qty","40",null],
+    ["Gross Wt.","1,744",null],
+    ["Shipment Type","ลูกค้ามารับเอง",null],
+    ["Group Product","Pipe-A",null],
+    ["Product Type","แป๊บแบน",null],
+    ["SLoc","Fac.03",null]
+  ]},
+  // SHP-10: ERROR 4 — Shipment No. เก่า ปี 2562 (Timeliness)
+  { batch:"SHP-10", cells:[
+    ["Shipment","2519906999","4"],
+    ["Delivery","2301058200",null],
+    ["Item","10",null],
     ["External ID","R3-703440",null],
     ["Material Code","3RPTS01005032-0397",null],
     ["Description","แป๊บแบน 100×50×3.20×6000mm TIS/JIS",null],
     ["Batch","032002",null],
-    ["Del. Qty","8",null],
-    ["Gross Wt.","99,999","0"],
+    ["Del. Qty","18",null],
+    ["Gross Wt.","686",null],
     ["Shipment Type","ลูกค้ามารับเอง",null],
     ["Group Product","Pipe-A",null],
     ["Product Type","แป๊บแบน",null],
-    ["SLoc","Fac.XX","7"]
+    ["SLoc","Fac.03",null]
   ]},
 ];
 
